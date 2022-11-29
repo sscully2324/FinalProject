@@ -35,3 +35,23 @@ def compare_stock_price(data):
 data = get_stock_data("AAPL", "2020-01-01", "2020-12-31", "1day")
 start_date, end_date, start_price, end_price, percent_diff = compare_stock_price(data)
 print(start_date, end_date, start_price, end_price, percent_diff)
+
+#use Polygon API to have a list of all the stocks with paramters as stocksTicker, multiplier, timespan, from, to, sort, and limit
+def get_stock_data_polygon(stocksTicker, multiplier, timespan, from_date, to_date, sort, limit):
+    url = "https://api.polygon.io/v2/aggs/ticker/" + stocksTicker + "/range/" + multiplier + "/" + timespan + "/" + from_date + "/" + to_date + "?apiKey=fw2THBM8iVqFAaKWfECR_H9peNm0Bp8Y"
+    params = {
+        "stocksTicker": stocksTicker,
+        "multiplier": multiplier,
+        "timespan": timespan,
+        "from": from_date,
+        "to": to_date,
+        "sort": sort,
+        "limit": limit
+    }
+    response = requests.get(url, params=params)
+    data = response.json()
+    return data
+
+#test get_all_stocks function
+data = get_stock_data_polygon("AAPL", "1", "day", "2020-01-01", "2020-12-31", "asc", "10")
+print(data)
