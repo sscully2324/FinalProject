@@ -38,8 +38,15 @@ def print_table(data):
     print("Average High: ", df['High'].mean())
     print("Average Low: ", df['Low'].mean())
     print("Average Close: ", df['Close'].mean())
-    #plot average open, high, low, close using seaborn
+
+def plot_poly_data(data):
     sns.set_theme(style="darkgrid")
+    df = pd.DataFrame(data['results'])
+    df['t'] = pd.to_datetime(df['t'], unit='ms')
+    df.rename(columns={'t': 'date'}, inplace=True)
+    df = df.set_index('date')
+    df = df[['o', 'h', 'l', 'c', 'v']]
+    df.columns = ['Open', 'High', 'Low', 'Close', 'Volume']
     sns.lineplot(data=df[
         ['Open', 'High', 'Low', 'Close']
     ], palette="tab10", linewidth=2.5)
@@ -52,6 +59,7 @@ def main():
         print(ticker)
         print_table(data)
         print("---------------------------------------------------------")
+        plot_poly_data(data)
     
 if __name__ == "__main__":
     main()
