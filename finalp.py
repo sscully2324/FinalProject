@@ -61,10 +61,12 @@ def main():
             print_poly_table(data)
             print("---------------------------------------------------------")
             plot_poly_data(data)
-    else:
+    elif len(tickers) == 1:
         data = get_stock_data_polygon(tickers[0], "1", "day", "2020-01-05", "2021-05-01", "asc", "100")
         print_poly_table(data)
         plot_poly_data(data)
+    else:
+        print("No Tickers")
 
 if __name__ == "__main__":
     main()
