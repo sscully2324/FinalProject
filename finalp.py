@@ -28,6 +28,7 @@ def print_poly_table(data):
     df = df.set_index('Date')
     df = df[['o', 'h', 'l', 'c', 'v']]
     df.columns = ['Open', 'High', 'Low', 'Close', 'Volume']
+    print("ticker: " + data['ticker'])
     print(df)
     print("Average Open: ", df['Open'].mean())
     print("Average High: ", df['High'].mean())
