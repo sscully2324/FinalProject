@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-#function to get stock data from Twelve Data API
+#TWELVE DATA API
 def get_stock_data(symbol, start_date, end_date, interval):
     url = "https://api.twelvedata.com/time_series"
     params = {
@@ -19,24 +19,18 @@ def get_stock_data(symbol, start_date, end_date, interval):
     data = response.json()
     return data
 
-#create a function to compare the % difference in stock price between the start and end date for each company
+#Compare stock price and volume
 def compare_stock_price(data):
     start_date = data['values'][0]['datetime']
     end_date = data['values'][-1]['datetime']
     start_price = data['values'][0]['close']
     end_price = data['values'][-1]['close']
-    #make the start and end price into a float
     start_price = float(start_price)
     end_price = float(end_price)
     percent_diff = round((end_price - start_price) / start_price * 100, 2)
     return start_date, end_date, start_price, end_price, percent_diff
 
-#test compare_stock_price function
-data = get_stock_data("AAPL", "2020-01-01", "2020-12-31", "1day")
-start_date, end_date, start_price, end_price, percent_diff = compare_stock_price(data)
-print(start_date, end_date, start_price, end_price, percent_diff)
-
-#use Polygon API to have a list of all the stocks with paramters as stocksTicker, multiplier, timespan, from, to, sort, and limit
+#POLYGON API
 def get_stock_data_polygon(stocksTicker, multiplier, timespan, from_date, to_date, sort, limit):
     url = "https://api.polygon.io/v2/aggs/ticker/" + stocksTicker + "/range/" + multiplier + "/" + timespan + "/" + from_date + "/" + to_date + "?apiKey=fw2THBM8iVqFAaKWfECR_H9peNm0Bp8Y"
     params = {
@@ -52,6 +46,35 @@ def get_stock_data_polygon(stocksTicker, multiplier, timespan, from_date, to_dat
     data = response.json()
     return data
 
-#test get_all_stocks function
-data = get_stock_data_polygon("AAPL", "1", "day", "2020-01-01", "2020-12-31", "asc", "10")
-print(data)
+def compare_stock_price_polygon(data):
+    #panda table
+    df = pd.DataFrame(data['results'])
+    #average trade price
+    avg_trade_price = df['c'].mean()
+    #average volume
+    avg_volume = df['v'].mean()
+    return avg_trade_price, avg_volume
+#print table
+def print_table(data):
+    df = pd.DataFrame(data['results'])
+    df = df[['t', 'c', 'v']]
+    df['t'] = df['t'].apply(convert_unix_time)
+    df = df.rename(columns={"ticker": "Ticker","t": "Date", "c": "Average Trade Price", "v": "Average Volume"})
+    print(df)
+#convert unix time to readable date
+def convert_unix_time(unix_time):
+    date = pd.to_datetime(unix_time, unit='ms')
+    return date
+
+
+
+def main():
+    data = get_stock_data_polygon("AAPL", "1", "day", "2020-01-31", "2020-12-31", "asc", "100")
+    print_table(data)
+
+
+
+if __name__ == "__main__":
+    main()
+
+
