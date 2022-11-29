@@ -21,7 +21,7 @@ def get_stock_data_polygon(stocksTicker, multiplier, timespan, from_date, to_dat
     data = response.json()
     return data
 
-def print_table(data):
+def print_poly_table(data):
     df = pd.DataFrame(data['results'])
     df['t'] = pd.to_datetime(df['t'], unit='ms')
     df.rename(columns={'t': 'date'}, inplace=True)
@@ -57,7 +57,7 @@ def main():
     for ticker in tickers:
         data = get_stock_data_polygon(ticker, "1", "day", "2020-01-05", "2021-05-01", "asc", "100")
         print(ticker)
-        print_table(data)
+        print_poly_table(data)
         print("---------------------------------------------------------")
         plot_poly_data(data)
 
