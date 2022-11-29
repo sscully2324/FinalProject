@@ -22,18 +22,13 @@ def get_stock_data_polygon(stocksTicker, multiplier, timespan, from_date, to_dat
     return data
 
 def print_table(data):
-  #create a pandas dataframe
     df = pd.DataFrame(data['results'])
     df['t'] = pd.to_datetime(df['t'], unit='ms')
     df.rename(columns={'t': 'date'}, inplace=True)
     df = df.set_index('date')
-    #make the columns open, high, low, close, volume
     df = df[['o', 'h', 'l', 'c', 'v']]
-    #rename the columns
     df.columns = ['Open', 'High', 'Low', 'Close', 'Volume']
-    #print the dataframe
     print(df)
-    #find the average of each column for the time period
     print("Average Open: ", df['Open'].mean())
     print("Average High: ", df['High'].mean())
     print("Average Low: ", df['Low'].mean())
@@ -46,20 +41,25 @@ def plot_poly_data(data):
     df.rename(columns={'t': 'date'}, inplace=True)
     df = df.set_index('date')
     df = df[['o', 'h', 'l', 'c', 'v']]
+    plt.title(data['ticker'])
     df.columns = ['Open', 'High', 'Low', 'Close', 'Volume']
     sns.lineplot(data=df[
         ['Open', 'High', 'Low', 'Close']
     ], palette="tab10", linewidth=2.5)
+    plt.text(0.5, 0.9, "Average Open: " + str(round(df['Open'].mean(), 2)), horizontalalignment='center', verticalalignment='center', transform=plt.gca().transAxes)
+    plt.text(0.5, 0.85, "Average High: " + str(round(df['High'].mean(), 2)), horizontalalignment='center', verticalalignment='center', transform=plt.gca().transAxes)
+    plt.text(0.5, 0.8, "Average Low: " + str(round(df['Low'].mean(), 2)), horizontalalignment='center', verticalalignment='center', transform=plt.gca().transAxes)
+    plt.text(0.5, 0.75, "Average Close: " + str(round(df['Close'].mean(), 2)), horizontalalignment='center', verticalalignment='center', transform=plt.gca().transAxes)
     plt.show()
 
 def main():
-    tickers = ["AAPL", "MSFT", "AMZN"]
+    tickers = ["AAPL", "MSFT"]
     for ticker in tickers:
         data = get_stock_data_polygon(ticker, "1", "day", "2020-01-05", "2021-05-01", "asc", "100")
         print(ticker)
         print_table(data)
         print("---------------------------------------------------------")
         plot_poly_data(data)
-    
+
 if __name__ == "__main__":
     main()
