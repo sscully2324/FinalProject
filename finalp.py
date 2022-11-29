@@ -3,32 +3,8 @@ import json
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+import seaborn as sns
 
-
-#TWELVE DATA API
-def get_stock_data(symbol, start_date, end_date, interval):
-    url = "https://api.twelvedata.com/time_series"
-    params = {
-        "symbol": symbol,
-        "interval": interval,
-        "start_date": start_date,
-        "end_date": end_date,
-        "apikey": "aa9952037501498aa349d042e328f8a7"
-    }
-    response = requests.get(url, params=params)
-    data = response.json()
-    return data
-
-#Compare stock price and volume
-def compare_stock_price(data):
-    start_date = data['values'][0]['datetime']
-    end_date = data['values'][-1]['datetime']
-    start_price = data['values'][0]['close']
-    end_price = data['values'][-1]['close']
-    start_price = float(start_price)
-    end_price = float(end_price)
-    percent_diff = round((end_price - start_price) / start_price * 100, 2)
-    return start_date, end_date, start_price, end_price, percent_diff
 
 #POLYGON API
 def get_stock_data_polygon(stocksTicker, multiplier, timespan, from_date, to_date, sort, limit):
@@ -46,35 +22,45 @@ def get_stock_data_polygon(stocksTicker, multiplier, timespan, from_date, to_dat
     data = response.json()
     return data
 
-def compare_stock_price_polygon(data):
-    #panda table
-    df = pd.DataFrame(data['results'])
-    #average trade price
-    avg_trade_price = df['c'].mean()
-    #average volume
-    avg_volume = df['v'].mean()
-    return avg_trade_price, avg_volume
-#print table
-def print_table(data):
-    df = pd.DataFrame(data['results'])
-    df = df[['t', 'c', 'v']]
-    df['t'] = df['t'].apply(convert_unix_time)
-    df = df.rename(columns={"ticker": "Ticker","t": "Date", "c": "Average Trade Price", "v": "Average Volume"})
-    print(df)
-#convert unix time to readable date
-def convert_unix_time(unix_time):
-    date = pd.to_datetime(unix_time, unit='ms')
-    return date
 
+def print_table(data):
+  #create a pandas dataframe
+    df = pd.DataFrame(data['results'])
+    df['t'] = pd.to_datetime(df['t'], unit='ms')
+    df.rename(columns={'t': 'date'}, inplace=True)
+    df = df.set_index('date')
+    #make the columns open, high, low, close, volume
+    df = df[['o', 'h', 'l', 'c', 'v']]
+    #rename the columns
+    df.columns = ['Open', 'High', 'Low', 'Close', 'Volume']
+    #print the dataframe
+    print(df)
+    #find the average of each column for the time period
+    print("Average Open: ", df['Open'].mean())
+    print("Average High: ", df['High'].mean())
+    print("Average Low: ", df['Low'].mean())
+    print("Average Close: ", df['Close'].mean())
+    
+    #plot average open, high, low, close using seaborn
+    sns.set_theme(style="darkgrid")
+    sns.lineplot(data=df[
+        ['Open', 'High', 'Low', 'Close']
+    ], palette="tab10", linewidth=2.5)
+    plt.show()
 
 
 def main():
-    data = get_stock_data_polygon("AAPL", "1", "day", "2020-01-31", "2020-12-31", "asc", "100")
-    print_table(data)
-
-
+    tickers = ["AAPL", "MSFT", "AMZN"]
+    for ticker in tickers:
+        data = get_stock_data_polygon(ticker, "1", "day", "2020-01-05", "2021-05-01", "asc", "100")
+        print(ticker)
+        print_table(data)
+        print("---------------------------------------------------------")
+    
+    
 
 if __name__ == "__main__":
     main()
+
 
 
