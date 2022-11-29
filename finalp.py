@@ -53,7 +53,7 @@ def plot_poly_data(data):
     plt.show()
 
 def main():
-    tickers = ["AAPL", "MSFT"]
+    tickers = ["AAPL", "MSFT", "AMZN", "GOOG", "FB", "TSLA", "NFLX", "NVDA", "PYPL", "ADBE"]
     for ticker in tickers:
         data = get_stock_data_polygon(ticker, "1", "day", "2020-01-05", "2021-05-01", "asc", "100")
         print(ticker)
