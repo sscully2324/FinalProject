@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 
-
 #POLYGON API
 def get_stock_data_polygon(stocksTicker, multiplier, timespan, from_date, to_date, sort, limit):
     url = "https://api.polygon.io/v2/aggs/ticker/" + stocksTicker + "/range/" + multiplier + "/" + timespan + "/" + from_date + "/" + to_date + "?apiKey=fw2THBM8iVqFAaKWfECR_H9peNm0Bp8Y"
@@ -21,7 +20,6 @@ def get_stock_data_polygon(stocksTicker, multiplier, timespan, from_date, to_dat
     response = requests.get(url, params=params)
     data = response.json()
     return data
-
 
 def print_table(data):
   #create a pandas dataframe
@@ -40,14 +38,12 @@ def print_table(data):
     print("Average High: ", df['High'].mean())
     print("Average Low: ", df['Low'].mean())
     print("Average Close: ", df['Close'].mean())
-    
     #plot average open, high, low, close using seaborn
     sns.set_theme(style="darkgrid")
     sns.lineplot(data=df[
         ['Open', 'High', 'Low', 'Close']
     ], palette="tab10", linewidth=2.5)
     plt.show()
-
 
 def main():
     tickers = ["AAPL", "MSFT", "AMZN"]
@@ -57,10 +53,5 @@ def main():
         print_table(data)
         print("---------------------------------------------------------")
     
-    
-
 if __name__ == "__main__":
     main()
-
-
-
