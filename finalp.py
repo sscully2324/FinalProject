@@ -53,12 +53,17 @@ def plot_poly_data(data):
     plt.show()
 
 def main():
-    tickers = ["AAPL", "MSFT"]
-    for ticker in tickers:
-        data = get_stock_data_polygon(ticker, "1", "day", "2020-01-05", "2021-05-01", "asc", "100")
-        print(ticker)
+    tickers = ["AAPL"]
+    if len(tickers) > 1:
+        for ticker in tickers:
+            data = get_stock_data_polygon(ticker, "1", "day", "2020-01-05", "2021-05-01", "asc", "100")
+            print(ticker)
+            print_poly_table(data)
+            print("---------------------------------------------------------")
+            plot_poly_data(data)
+    else:
+        data = get_stock_data_polygon(tickers[0], "1", "day", "2020-01-05", "2021-05-01", "asc", "100")
         print_poly_table(data)
-        print("---------------------------------------------------------")
         plot_poly_data(data)
 
 if __name__ == "__main__":
