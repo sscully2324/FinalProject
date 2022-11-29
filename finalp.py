@@ -54,16 +54,16 @@ def plot_poly_data(data):
     plt.show()
 
 def main():
-    tickers = ["AAPL"]
+    tickers = ["AAPL", "MSFT", "AMZN", "GOOG"]
     if len(tickers) > 1:
         for ticker in tickers:
-            data = get_stock_data_polygon(ticker, "1", "day", "2020-01-05", "2021-05-01", "asc", "100")
+            data = get_stock_data_polygon(ticker, "1", "day", "2020-12-01", "2021-03-12", "asc", "100")
             print(ticker)
             print_poly_table(data)
             print("---------------------------------------------------------")
             plot_poly_data(data)
     elif len(tickers) == 1:
-        data = get_stock_data_polygon(tickers[0], "1", "day", "2020-01-05", "2021-05-01", "asc", "100")
+        data = get_stock_data_polygon(tickers[0], "1", "day", "2020-12-01", "2021-03-12", "asc", "100")
         print_poly_table(data)
         plot_poly_data(data)
     else:
