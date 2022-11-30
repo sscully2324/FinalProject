@@ -1,5 +1,4 @@
 import requests
-import json
 import pandas as pd
 import sqlite3
 import seaborn as sns
