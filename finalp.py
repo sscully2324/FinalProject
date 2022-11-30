@@ -23,7 +23,7 @@ def get_news_data_gnews(stocksTicker, from_date, to_date, sort, limit):
     return data
 #POLYGON SETUP
 def get_stock_data_polygon(stocksTicker, multiplier, timespan, from_date, to_date, sort, limit):
-    url = "https://api.polygon.io/v2/aggs/ticker/" + stocksTicker + "/range/" + multiplier + "/" + timespan + "/" + from_date + "/" + to_date + "?apiKey=kQ7_G94gpM45HRLw4XrF9a_pW1sRLNqb" #enter your api key here
+    url = "https://api.polygon.io/v2/aggs/ticker/" + stocksTicker + "/range/" + multiplier + "/" + timespan + "/" + from_date + "/" + to_date + "?adjusted=true&sort=" + sort + "&limit=" + limit + "&apiKey=fw2THBM8iVqFAaKWfECR_H9peNm0Bp8Y"
     params = {
         "stocksTicker": stocksTicker,
         "multiplier": multiplier,
@@ -128,13 +128,13 @@ def main():
     tickers = ["AAPL", "MSFT"]
     if len(tickers) > 1:
         for ticker in tickers:
-            data = get_news_data_gnews(ticker, "2021-05-01", "2022-05-05", "date", "10")
+            data = get_news_data_gnews(ticker, "2021-05-10", "2022-05-10", "date", "25")
             cur, conn = setUpDatabase(ticker + ".db")
             create_table_news(cur, conn)
             insert_data_news(cur, conn, data)
             print(ticker)
             print_db_table_news(cur, conn)
-            data = get_stock_data_polygon(ticker, "1", "day", "2020-01-05", "2022-05-01", "asc", "100")
+            data = get_stock_data_polygon(ticker, "1", "day", "2021-05-10", "2022-05-10", "asc", "100")
             cur, conn = setUpDatabase(ticker + ".db")
             create_table_poly(cur, conn)
             insert_data_poly(cur, conn, data)
@@ -156,13 +156,13 @@ def main():
             ts.as_plotly_figure()
             ts.with_ema().as_plotly_figure().show()
     elif len(tickers) == 1:
-        data = get_news_data_gnews(tickers[0], "2021-05-01", "2022-05-05", "date", "10")
+        data = get_news_data_gnews(tickers[0], "2021-05-01", "2022-10-10", "date", "25")
         cur, conn = setUpDatabase(ticker + ".db")
         create_table_news(cur, conn)
         insert_data_news(cur, conn, data)
         print(ticker)
         print_db_table_news(cur, conn)
-        data = get_stock_data_polygon(tickers[0], "1", "day", "2020-01-05", "2022-05-01", "asc", "100")
+        data = get_stock_data_polygon(tickers[0], "1", "day", "2021-05-01", "2022-10-10", "asc", "100")
         cur, conn = setUpDatabase(ticker + ".db")
         create_table_poly(cur, conn)
         insert_data_poly(cur, conn, data)
