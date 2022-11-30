@@ -11,8 +11,6 @@ import sqlite3
 from sqlalchemy import create_engine
 engine = create_engine('sqlite:///stocks.db', echo=True)
 
-
-
 #POLYGON API (historical data)
 def get_stock_data_polygon(stocksTicker, multiplier, timespan, from_date, to_date, sort, limit):
     url = "https://api.polygon.io/v2/aggs/ticker/" + stocksTicker + "/range/" + multiplier + "/" + timespan + "/" + from_date + "/" + to_date + "?apiKey=kQ7_G94gpM45HRLw4XrF9a_pW1sRLNqb"
