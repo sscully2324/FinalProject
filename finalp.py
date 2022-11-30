@@ -27,7 +27,6 @@ def get_stock_data_polygon(stocksTicker, multiplier, timespan, from_date, to_dat
     data = response.json()
     return data
     
-
 def print_poly_table(data):
     df = pd.DataFrame(data['results'])
     df['t'] = pd.to_datetime(df['t'], unit='ms')
@@ -74,6 +73,7 @@ def plot_poly_data(data):
 
 def main():
     tickers = ["AAPL", "MSFT"]
+
     #Polygon API
     if len(tickers) >= 1:
         for ticker in tickers:
@@ -99,7 +99,6 @@ def main():
         )
         ts.as_plotly_figure()
         ts.with_ema().as_plotly_figure().show()
-
 
 if __name__ == "__main__":
     main()
