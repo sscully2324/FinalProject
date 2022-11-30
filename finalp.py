@@ -46,14 +46,13 @@ def plot_poly_data(data):
     plt.title(data['ticker'])
     df.columns = ['Open', 'High', 'Low', 'Close', 'Volume']
     sns.lineplot(data=df[
-        ['Open', 'High', 'Low', 'Close', 'Volume']
+        ['Open', 'High', 'Low', 'Close']
     ], palette="tab10", linewidth=2.5)
     plt.text(0.5, 0.9, "Average Open: " + str(round(df['Open'].mean(), 2)), horizontalalignment='center', verticalalignment='center', transform=plt.gca().transAxes)
     plt.text(0.5, 0.85, "Average High: " + str(round(df['High'].mean(), 2)), horizontalalignment='center', verticalalignment='center', transform=plt.gca().transAxes)
     plt.text(0.5, 0.8, "Average Low: " + str(round(df['Low'].mean(), 2)), horizontalalignment='center', verticalalignment='center', transform=plt.gca().transAxes)
     plt.text(0.5, 0.75, "Average Close: " + str(round(df['Close'].mean(), 2)), horizontalalignment='center', verticalalignment='center', transform=plt.gca().transAxes)
     plt.show()
-
 
 def main():
     tickers = ["AAPL", "MSFT"]
@@ -81,7 +80,8 @@ def main():
             interval="1min",
         )
         ts.as_plotly_figure()
-        ts.with_ema(time_period = 7).as_plotly_figure().show()
+        ts.with_ema().as_plotly_figure().show()
+
 
 if __name__ == "__main__":
     main()
