@@ -22,6 +22,7 @@ def get_stock_data_polygon(stocksTicker, multiplier, timespan, from_date, to_dat
     response = requests.get(url, params=params)
     data = response.json()
     return data
+    
 
 def print_poly_table(data):
     df = pd.DataFrame(data['results'])
