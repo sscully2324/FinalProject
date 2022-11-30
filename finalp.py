@@ -71,34 +71,63 @@ def plot_poly_data(data):
     plt.text(0.5, 0.75, "Average Close: " + str(round(df['Close'].mean(), 2)), horizontalalignment='center', verticalalignment='center', transform=plt.gca().transAxes)
     plt.show()
 
+
+#TWELVEDATA API (current stock data)
+def get_current_stock_data(symbol,interval):
+    url="https://api.twelvedata.com/time_series"
+    params = {
+        "symbol":symbol,
+        "interval":interval,
+        "apikey":"9699f1b5bb0b4a8c9a54b2e112630369"
+    }
+
+    response=requests.get(url,params=params)
+    data=response.json()
+    print(data)
+    return data
+
+def get_twelvedata_table(data):
+    data['values']
+    pass
+
 def main():
     tickers = ["AAPL", "MSFT"]
 
     #Polygon API
-    if len(tickers) >= 1:
-        for ticker in tickers:
-            data = get_stock_data_polygon(ticker, "1", "day", "2020-01-05", "2021-05-01", "asc", "100")
-            print(ticker)
+    def run_polygon():
+        if len(tickers) >= 1:
+            for ticker in tickers:
+                data = get_stock_data_polygon(ticker, "1", "day", "2020-01-05", "2021-05-01", "asc", "100")
+                print(ticker)
+                print_poly_table(data)
+                print("---------------------------------------------------------")
+                plot_poly_data(data)
+        elif len(tickers) == 1:
+            data = get_stock_data_polygon(tickers[0], "1", "day", "2020-12-01", "2021-03-12", "asc", "100")
             print_poly_table(data)
-            print("---------------------------------------------------------")
             plot_poly_data(data)
-    elif len(tickers) == 1:
-        data = get_stock_data_polygon(tickers[0], "1", "day", "2020-12-01", "2021-03-12", "asc", "100")
-        print_poly_table(data)
-        plot_poly_data(data)
-    else:
-        print("No Tickers")
+        else:
+            print("No Tickers")
     
     #TwelveData API
-    for tickerr in tickers:
-        td = TDClient(apikey="9699f1b5bb0b4a8c9a54b2e112630369")
-        ts = td.time_series(
-            symbol=tickerr,
-            outputsize=100,
-            interval="1min",
-        )
-        ts.as_plotly_figure()
-        ts.with_ema().as_plotly_figure().show()
+    def run_twelvedata():
+        for tickerr in tickers:
+            td = TDClient(apikey="9699f1b5bb0b4a8c9a54b2e112630369")
+            ts = td.time_series(
+                symbol=tickerr,
+                outputsize=100,
+                interval="1min",
+            )
+            ts.as_plotly_figure()
+            ts.with_ema().as_plotly_figure().show()
+
+
+
+    for t in tickers:
+        get_current_stock_data(t,'1min')
+    #run_polygon()
+    #run_twelvedata()
+
 
 if __name__ == "__main__":
     main()
