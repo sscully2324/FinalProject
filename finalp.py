@@ -6,10 +6,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import sqlite3
 import os
+from datetime import datetime
 
 #GNEWS SETUP
 def get_news_data_gnews(stocksTicker, from_date, to_date, sort, limit):
-    api_key = "e0cb64f718bf6b042c7faa469cc4a7cd" #enter your api key here
+    api_key = "e0cb64f718bf6b042c7faa469cc4a7cd" #enter your gnews api key here
     url = "https://gnews.io/api/v4/search?q=" + stocksTicker + "&from=" + from_date + "&to=" + to_date + "&sortby=" + sort + "&max=" + limit + "&token=" + api_key+ "&lang=en" 
     params = {
         "stocksTicker": stocksTicker,
@@ -23,7 +24,7 @@ def get_news_data_gnews(stocksTicker, from_date, to_date, sort, limit):
     return data
 #POLYGON SETUP
 def get_stock_data_polygon(stocksTicker, multiplier, timespan, from_date, to_date, sort, limit):
-    api_key = "fw2THBM8iVqFAaKWfECR_H9peNm0Bp8Y" #add your api key here
+    api_key = "fw2THBM8iVqFAaKWfECR_H9peNm0Bp8Y" #add your polygon api key here
     url = "https://api.polygon.io/v2/aggs/ticker/" + stocksTicker + "/range/" + multiplier + "/" + timespan + "/" + from_date + "/" + to_date + "?adjusted=true&sort=" + sort + "&limit=" + limit + "&apiKey=" + api_key
     params = {
         "stocksTicker": stocksTicker,
@@ -43,7 +44,7 @@ def get_current_stock_data(symbol,interval):
     params = {
         "symbol":symbol,
         "interval":interval,
-        "apikey":"9699f1b5bb0b4a8c9a54b2e112630369" #add your api key here
+        "apikey":"aa9952037501498aa349d042e328f8a7" #add your twelvedata api key here
     }
     response=requests.get(url,params=params)
     data=response.json()
@@ -86,7 +87,7 @@ def create_table_poly(cur, conn):
 
 def insert_data_poly(cur, conn, data):
     for i in range(len(data['results'])):
-        date = data['results'][i]['t']
+        date = datetime.fromtimestamp(data['results'][i]['t']//1000)
         open = data['results'][i]['o']
         high = data['results'][i]['h']
         low = data['results'][i]['l']
@@ -121,6 +122,8 @@ def print_db_table(cur, conn):
     rows = cur.fetchall()
     df = pd.DataFrame(rows)
     df.columns = [x[0] for x in cur.description]
+    print("---------------------------------------------------------")
+    print("---------------------------------------------------------")
     print(df)
     
 '''--------------------------------------------------------------------------------------------------------------'''
@@ -148,7 +151,7 @@ def main():
             print(ticker)
             print_db_table(cur, conn)
             conn.close()
-            td = TDClient(apikey="9699f1b5bb0b4a8c9a54b2e112630369") #add your api key here
+            td = TDClient(apikey="aa9952037501498aa349d042e328f8a7") #add your twelvedata api key here
             ts = td.time_series(
                 symbol=ticker,
                 outputsize=100,
@@ -176,7 +179,7 @@ def main():
         print(ticker)
         print_db_table(cur, conn)
         conn.close()
-        td = TDClient(apikey="9699f1b5bb0b4a8c9a54b2e112630369") #add your api key here
+        td = TDClient(apikey="aa9952037501498aa349d042e328f8a7") #add your twelvedata api key here
         ts = td.time_series(
             symbol=ticker,
             outputsize=100,
