@@ -90,10 +90,10 @@ def main():
         print("No Tickers")
     
     #TwelveData API
-    for tickerr in tickers:
+    for ticker in tickers:
         td = TDClient(apikey="9699f1b5bb0b4a8c9a54b2e112630369")
         ts = td.time_series(
-            symbol=tickerr,
+            symbol=ticker,
             outputsize=100,
             interval="1min",
         )
