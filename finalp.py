@@ -1,6 +1,7 @@
 import requests
 import json
 import pandas as pd
+import sqlite3
 import seaborn as sns
 from twelvedata import TDClient
 import numpy as np
@@ -9,7 +10,7 @@ plt.rcParams['date.converter'] = 'concise'
 
 #POLYGON API (historical data)
 def get_stock_data_polygon(stocksTicker, multiplier, timespan, from_date, to_date, sort, limit):
-    url = "https://api.polygon.io/v2/aggs/ticker/" + stocksTicker + "/range/" + multiplier + "/" + timespan + "/" + from_date + "/" + to_date + "?apiKey=fw2THBM8iVqFAaKWfECR_H9peNm0Bp8Y"
+    url = "https://api.polygon.io/v2/aggs/ticker/" + stocksTicker + "/range/" + multiplier + "/" + timespan + "/" + from_date + "/" + to_date + "?apiKey=kQ7_G94gpM45HRLw4XrF9a_pW1sRLNqb"
     params = {
         "stocksTicker": stocksTicker,
         "multiplier": multiplier,
@@ -22,7 +23,6 @@ def get_stock_data_polygon(stocksTicker, multiplier, timespan, from_date, to_dat
     response = requests.get(url, params=params)
     data = response.json()
     return data
-    
 
 def print_poly_table(data):
     df = pd.DataFrame(data['results'])
@@ -74,14 +74,15 @@ def main():
     
     #TwelveData API
     for tickerr in tickers:
-        td = TDClient(apikey="aa9952037501498aa349d042e328f8a7")
+        td = TDClient(apikey="9699f1b5bb0b4a8c9a54b2e112630369")
         ts = td.time_series(
             symbol=tickerr,
             outputsize=100,
             interval="1min",
         )
         ts.as_plotly_figure()
-        ts.with_ema().as_plotly_figure().show()
+        ts.with_ema(time_period=7).as_plotly_figure().show()
+    
 
 
 if __name__ == "__main__":
