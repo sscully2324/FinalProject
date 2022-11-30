@@ -6,7 +6,6 @@ import seaborn as sns
 from twelvedata import TDClient
 import numpy as np
 import matplotlib.pyplot as plt
-plt.rcParams['date.converter'] = 'concise'
 import sqlite3
 from sqlalchemy import create_engine
 engine = create_engine('sqlite:///stocks.db', echo=True)
@@ -57,11 +56,11 @@ def plot_poly_data(data):
     sns.set_theme(style="darkgrid")
     df = pd.DataFrame(data['results'])
     df['t'] = pd.to_datetime(df['t'], unit='ms')
-    df.rename(columns={'t': 'Date'}, inplace=True)
-    df = df.set_index('Date')
+    df.rename(columns={'t': 'date'}, inplace=True)
+    df = df.set_index('date')
     df = df[['o', 'h', 'l', 'c', 'v']]
-    plt.title(data['ticker'])
     df.columns = ['Open', 'High', 'Low', 'Close', 'Volume']
+    plt.title(data['ticker'])
     sns.lineplot(data=df[
         ['Open', 'High', 'Low', 'Close']
     ], palette="tab10", linewidth=2.5)
@@ -73,9 +72,8 @@ def plot_poly_data(data):
 
 def main():
     tickers = ["AAPL", "MSFT"]
-
     #Polygon API
-    if len(tickers) >= 1:
+    if len(tickers) > 1:
         for ticker in tickers:
             data = get_stock_data_polygon(ticker, "1", "day", "2020-01-05", "2021-05-01", "asc", "100")
             print(ticker)
@@ -83,8 +81,10 @@ def main():
             print("---------------------------------------------------------")
             plot_poly_data(data)
     elif len(tickers) == 1:
-        data = get_stock_data_polygon(tickers[0], "1", "day", "2020-12-01", "2021-03-12", "asc", "100")
+        data = get_stock_data_polygon(tickers[0], "1", "day", "2020-05-05", "2021-05-05", "asc", "100")
+        print(tickers[0])
         print_poly_table(data)
+        print("---------------------------------------------------------")
         plot_poly_data(data)
     else:
         print("No Tickers")
