@@ -36,10 +36,23 @@ def print_poly_table(data):
     df = df[['o', 'h', 'l', 'c', 'v']]
     df.columns = ['Open', 'High', 'Low', 'Close', 'Volume']
     print(df)
-    print("Average Open: ", df['Open'].mean())
-    print("Average High: ", df['High'].mean())
-    print("Average Low: ", df['Low'].mean())
-    print("Average Close: ", df['Close'].mean())
+    print("---------------------------------------------------------")
+    print("Stock: " + data['ticker'])
+    print("---------------------------------------------------------")
+    print("Average Open: " + str(round(df['Open'].mean(), 2)))
+    print("Average High: " + str(round(df['High'].mean(), 2)))
+    print("Average Low: " + str(round(df['Low'].mean(), 2)))
+    print("Average Close: " + str(round(df['Close'].mean(), 2)))
+    print("---------------------------------------------------------")
+    print("Total Volume: " + str(df['Volume'].sum()))
+    print("---------------------------------------------------------")
+
+    conn = sqlite3.connect('stocks.db')
+    c = conn.cursor()
+    c.execute("CREATE TABLE IF NOT EXISTS " + data['ticker'] + " (date text, open real, high real, low real, close real, volume real)")
+    df.to_sql(data['ticker'], con=engine, if_exists='replace')
+    conn.commit()
+    conn.close()
 
 def plot_poly_data(data):
     sns.set_theme(style="darkgrid")
