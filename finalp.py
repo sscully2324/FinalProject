@@ -23,7 +23,8 @@ def get_news_data_gnews(stocksTicker, from_date, to_date, sort, limit):
     return data
 #POLYGON SETUP
 def get_stock_data_polygon(stocksTicker, multiplier, timespan, from_date, to_date, sort, limit):
-    url = "https://api.polygon.io/v2/aggs/ticker/" + stocksTicker + "/range/" + multiplier + "/" + timespan + "/" + from_date + "/" + to_date + "?adjusted=true&sort=" + sort + "&limit=" + limit + "&apiKey=fw2THBM8iVqFAaKWfECR_H9peNm0Bp8Y"
+    api_key = "fw2THBM8iVqFAaKWfECR_H9peNm0Bp8Y" #add your api key here
+    url = "https://api.polygon.io/v2/aggs/ticker/" + stocksTicker + "/range/" + multiplier + "/" + timespan + "/" + from_date + "/" + to_date + "?adjusted=true&sort=" + sort + "&limit=" + limit + "&apiKey=" + api_key
     params = {
         "stocksTicker": stocksTicker,
         "multiplier": multiplier,
@@ -42,7 +43,7 @@ def get_current_stock_data(symbol,interval):
     params = {
         "symbol":symbol,
         "interval":interval,
-        "apikey":"9699f1b5bb0b4a8c9a54b2e112630369" #enter your api key here
+        "apikey":"9699f1b5bb0b4a8c9a54b2e112630369" #add your api key here
     }
     response=requests.get(url,params=params)
     data=response.json()
