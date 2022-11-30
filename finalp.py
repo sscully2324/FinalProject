@@ -53,6 +53,7 @@ def get_current_stock_data(symbol,interval):
 
 #SQL
 
+#GNEWS
 def setUpDatabase(db_name):
     path = os.path.dirname(os.path.abspath(__file__))
     conn = sqlite3.connect(path + '/' + db_name)
