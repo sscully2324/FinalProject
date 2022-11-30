@@ -84,6 +84,8 @@ def get_current_stock_data(symbol,interval):
     print(data)
     return data
 
+#Get time series values, and calculate average for the current day. 
+#Add all of these values to SQL table
 def get_twelvedata_table(data):
     data['values']
     pass
