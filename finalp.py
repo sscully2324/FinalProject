@@ -7,6 +7,11 @@ from twelvedata import TDClient
 import numpy as np
 import matplotlib.pyplot as plt
 plt.rcParams['date.converter'] = 'concise'
+import sqlite3
+from sqlalchemy import create_engine
+engine = create_engine('sqlite:///stocks.db', echo=True)
+
+
 
 #POLYGON API (historical data)
 def get_stock_data_polygon(stocksTicker, multiplier, timespan, from_date, to_date, sort, limit):
@@ -23,12 +28,13 @@ def get_stock_data_polygon(stocksTicker, multiplier, timespan, from_date, to_dat
     response = requests.get(url, params=params)
     data = response.json()
     return data
+    
 
 def print_poly_table(data):
     df = pd.DataFrame(data['results'])
     df['t'] = pd.to_datetime(df['t'], unit='ms')
-    df.rename(columns={'t': 'Date'}, inplace=True)
-    df = df.set_index('Date')
+    df.rename(columns={'t': 'date'}, inplace=True)
+    df = df.set_index('date')
     df = df[['o', 'h', 'l', 'c', 'v']]
     df.columns = ['Open', 'High', 'Low', 'Close', 'Volume']
     print(df)
@@ -58,9 +64,9 @@ def plot_poly_data(data):
 def main():
     tickers = ["AAPL", "MSFT"]
     #Polygon API
-    if len(tickers) > 1:
+    if len(tickers) >= 1:
         for ticker in tickers:
-            data = get_stock_data_polygon(ticker, "1", "day", "2020-12-01", "2021-03-12", "asc", "100")
+            data = get_stock_data_polygon(ticker, "1", "day", "2020-01-05", "2021-05-01", "asc", "100")
             print(ticker)
             print_poly_table(data)
             print("---------------------------------------------------------")
@@ -81,8 +87,7 @@ def main():
             interval="1min",
         )
         ts.as_plotly_figure()
-        ts.with_ema(time_period=7).as_plotly_figure().show()
-    
+        ts.with_ema().as_plotly_figure().show()
 
 
 if __name__ == "__main__":
