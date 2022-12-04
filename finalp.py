@@ -39,6 +39,7 @@ def get_stock_data_polygon(stocksTicker, multiplier, timespan, from_date, to_dat
     response = requests.get(url, params=params)
     data = response.json()
     return data
+
 #TWELVEDATA SETUP
 def get_current_stock_data(symbol,interval, outputsize, apikey):
     url="https://api.twelvedata.com/time_series" + "?symbol=" + symbol + "&interval=" + interval + "&apikey=" + apikey + "&outputsize=" + outputsize
@@ -56,114 +57,64 @@ def get_current_stock_data(symbol,interval, outputsize, apikey):
 
 '''--------------------------------------------------------------------------------------------------------------'''
 
-
-#GNEWS SQL
+#SQL SETUP
 def setUpDatabase(db_name):
     path = os.path.dirname(os.path.abspath(__file__))
     conn = sqlite3.connect(path + '/' + db_name)
     cur = conn.cursor()
     return cur, conn
-def create_table_news(cur, conn):
-    cur.execute("CREATE TABLE IF NOT EXISTS news (title TEXT, description TEXT, publishedAt TEXT)")
+
+def create_news_table(cur, conn, data, stock):
+    #make gnews table with date as primary key
+    cur.execute("CREATE TABLE IF NOT EXISTS news (id INTEGER PRIMARY KEY, stock TEXT, title TEXT, description TEXT, publishedAt TEXT, source TEXT, FOREIGN KEY (stock) REFERENCES stock (stock))")
     conn.commit()
-def insert_data_news(cur, conn, data):
+    #insert data into gnews table
     for i in range(len(data['articles'])):
-        cur.execute("INSERT INTO news (title, description, publishedAt) VALUES (?, ?, ?)", (data['articles'][i]['title'], data['articles'][i]['description'], data['articles'][i]['publishedAt']))
+        cur.execute("INSERT INTO news (stock, title, description, publishedAt, source) VALUES (?, ?, ?, ?, ?)", (stock, data['articles'][i]['title'], data['articles'][i]['description'], data['articles'][i]['publishedAt'], data['articles'][i]['source']['name']))
         conn.commit()
-def print_db_table_news(cur, conn):
-    cur.execute("SELECT * FROM news")
-    rows = cur.fetchall()
-    df = pd.DataFrame(rows)
-    df.columns = ['Title', 'Description', 'Published At']
-    print(df)
-    print("---------------------------------------------------------")
-    print("---------------------------------------------------------")
-    print("Total Articles: " + str(len(rows)))
-    print("---------------------------------------------------------")
 
-
-#POLYGON SQL
-def create_table_poly(cur, conn):
-    cur.execute("CREATE TABLE IF NOT EXISTS stock (date TEXT, open REAL, high REAL, low REAL, close REAL, volume REAL)")
+def create_stock_table(cur, conn, data, stock):
+    #make stock table with first column referencing primary key in gnews table
+    cur.execute("CREATE TABLE IF NOT EXISTS stock (id INTEGER PRIMARY KEY, stock TEXT, date TEXT, open REAL, high REAL, low REAL, close REAL, volume REAL, FOREIGN KEY (id) REFERENCES gnews (id))")
     conn.commit()
-def insert_data_poly(cur, conn, data):
+    #insert data into stock table
     for i in range(len(data['results'])):
         date = datetime.fromtimestamp(data['results'][i]['t']//1000)
-        open = data['results'][i]['o']
-        high = data['results'][i]['h']
-        low = data['results'][i]['l']
-        close = data['results'][i]['c']
-        volume = data['results'][i]['v']
-        cur.execute("INSERT INTO stock VALUES (?, ?, ?, ?, ?, ?)", (date, open, high, low, close, volume))
+        cur.execute("INSERT INTO stock (stock, date, open, high, low, close, volume) VALUES (?, ?, ?, ?, ?, ?, ?)", (stock, date, data['results'][i]['o'], data['results'][i]['h'], data['results'][i]['l'], data['results'][i]['c'], data['results'][i]['v']))
         conn.commit()
-def print_db_table_poly(cur, conn):
-    cur.execute("SELECT * FROM stock")
-    rows = cur.fetchall()
-    df = pd.DataFrame(rows)
-    df.columns = [x[0] for x in cur.description]
-    print(df)
-
-
-#TWELVEDATA SQL
-def create_table(cur, conn):
-    cur.execute("CREATE TABLE IF NOT EXISTS realtime (date TEXT, open REAL, high REAL, low REAL, close REAL, volume REAL)")
+def create_current_stock_table(cur, conn, data, stock):
+    #make stock table with first column referencing primary key in gnews table
+    cur.execute("CREATE TABLE IF NOT EXISTS current_stock (id INTEGER PRIMARY KEY, stock TEXT, current TEXT, current_open REAL, current_high REAL, current_low REAL, current_close REAL, current_volume REAL, FOREIGN KEY (id) REFERENCES gnews (id))")
     conn.commit()
-def insert_data(cur, conn, data):
+    #insert data into stock table
     for i in range(len(data['values'])):
-        date = data['values'][i]['datetime']
-        open = data['values'][i]['open']
-        high = data['values'][i]['high']
-        low = data['values'][i]['low']
-        close = data['values'][i]['close']
-        volume = data['values'][i]['volume']
-        cur.execute("INSERT INTO realtime VALUES (?, ?, ?, ?, ?, ?)", (date, open, high, low, close, volume))
+        cur.execute("INSERT INTO current_stock (stock, current, current_open, current_high, current_low, current_close, current_volume) VALUES (?, ?, ?, ?, ?, ?, ?)", (stock, data['values'][i]['datetime'], data['values'][i]['open'], data['values'][i]['high'], data['values'][i]['low'], data['values'][i]['close'], data['values'][i]['volume']))
         conn.commit()
-def print_db_table(cur, conn):
-    cur.execute("SELECT * FROM realtime")
-    rows = cur.fetchall()
-    df = pd.DataFrame(rows)
-    df.columns = [x[0] for x in cur.description]
-    print("---------------------------------------------------------")
-    print("---------------------------------------------------------")
-    print(df)
+
+#join three tables news, stock, and current_stock and create a new table called final
+def join_tables(cur, conn):
+    cur.execute("CREATE TABLE IF NOT EXISTS final AS SELECT news.id, news.stock, news.title, news.description, news.publishedAt, news.source, stock.date, stock.open, stock.high, stock.low, stock.close, stock.volume, current_stock.current, current_stock.current_open, current_stock.current_high, current_stock.current_low, current_stock.current_close, current_stock.current_volume FROM news JOIN stock ON news.stock = stock.stock JOIN current_stock ON news.stock = current_stock.stock") 
+    conn.commit()
+
 
 
 '''--------------------------------------------------------------------------------------------------------------'''
 
 
 def main():
-    tickers = ["AAPL", "MSFT"]
-    if len(tickers) > 1:
-        for ticker in tickers:
-            data = get_news_data_gnews(ticker, "2021-05-10", "2022-05-10", "date", "25", "e0cb64f718bf6b042c7faa469cc4a7cd") #add your gnews api here 
-            cur, conn = setUpDatabase(ticker + ".db")
-            create_table_news(cur, conn)
-            insert_data_news(cur, conn, data)
-            print(ticker)
-            print_db_table_news(cur, conn)
-            data = get_stock_data_polygon(ticker, "1", "day", "2021-05-10", "2022-05-10", "asc", "100", "fw2THBM8iVqFAaKWfECR_H9peNm0Bp8Y") #add your polygon api key here
-            cur, conn = setUpDatabase(ticker + ".db")
-            create_table_poly(cur, conn)
-            insert_data_poly(cur, conn, data)
-            print(ticker)
-            print_db_table_poly(cur, conn)
-            data = get_current_stock_data(ticker, "1min", "25", "aa9952037501498aa349d042e328f8a7") #add your twelvedata api key here
-            cur, conn = setUpDatabase(ticker + ".db")
-            create_table(cur, conn)
-            insert_data(cur, conn, data)
-            print(ticker)
-            print_db_table(cur, conn)
-            conn.close()
-            td = TDClient(apikey="aa9952037501498aa349d042e328f8a7") #add your twelvedata api key here
-            ts = td.time_series(
-                symbol=ticker,
-                outputsize=100,
-                interval="1min",
-            )
-            ts.as_plotly_figure()
-            ts.with_ema().as_plotly_figure().show()
-    else:
-        print("No Tickers")
+
+    stocks = "AAPL"
+    curr, conn = setUpDatabase("stock.db")
+    data = get_news_data_gnews(stocks, "2021-05-10", "2022-05-10", "date", "25", "9f186c9b36777723249910217e13cb5d")
+    create_news_table(curr, conn, data, stocks)
+    data = get_stock_data_polygon(stocks, "1", "day", "2021-05-10", "2022-05-10", "asc", "25", "fw2THBM8iVqFAaKWfECR_H9peNm0Bp8Y")
+    create_stock_table(curr, conn, data, stocks)
+    data = get_current_stock_data(stocks, "1min", "25", "aa9952037501498aa349d042e328f8a7")
+    create_current_stock_table(curr, conn, data, stocks)
+    join_tables(curr, conn)
+
+
+
 
 if __name__ == "__main__":
     main()
