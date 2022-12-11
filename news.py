@@ -8,7 +8,7 @@ import datetime
 
 
 def setUp (stocks, froms, to):
-    url = "https://eodhistoricaldata.com/api/sentiments?s=" + stocks + "&order=a&from=" + froms + "&to=" + to + "&api_token=639534ba337151.63055361"
+    url = "https://eodhistoricaldata.com/api/sentiments?s=" + stocks + "&order=a&from=" + froms + "&to=" + to + "&api_token=6396252345fe97.14332763"
     params = {
         "s": stocks,
         "from": froms,
@@ -56,25 +56,19 @@ def setUpDatabase(db_name):
   path = os.path.dirname(os.path.abspath(__file__))
   conn = sqlite3.connect(path + '/' + db_name)
   cur = conn.cursor()
-  cur.execute("CREATE TABLE IF NOT EXISTS stocks (date TEXT, score REAL)")
-  cur.execute("CREATE TABLE IF NOT EXISTS stocks2 (date TEXT, score REAL)")
+  cur.execute("CREATE TABLE IF NOT EXISTS stocks (count_id INTEGER, date TEXT, score REAL)")
   conn.commit()
   return cur, conn
 
 def insertData(cur, conn, data):
-  for date, score in data.items():
-    cur.execute("INSERT INTO stocks VALUES (?, ?)", (date, score))
+
+  count_id = cur.execute('SELECT COUNT(count_id) FROM stocks').fetchone()[0] + 1
+  start = count_id - 1
+  sean_end = start + 25
+  data_list = list(data.items())
+  for date, score in data_list[start:sean_end]:
+    cur.execute("INSERT OR IGNORE INTO stocks VALUES (?, ?, ?)", (count_id, date, score))
     conn.commit()
-
-  # Set the starting row number
-  start_row = 0
-
-  # Select rows starting from the starting row number
-  cur.execute("INSERT INTO stocks2 SELECT * FROM stocks LIMIT 25 OFFSET ?", (start_row,))
-  conn.commit()
-
-  # Increase the starting row number by 25 for the next iteration
-  start_row += 25
 
 
 
