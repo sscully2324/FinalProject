@@ -136,6 +136,21 @@ def avg_historical_stock(cur,conn):
     #returns list of averages 
     return averages
 '''_____________________________________________________________________________________________________________________________________________________________________________________________________'''
+#Visualizations start 
+def twelvedata_viz(cur,conn):
+    pass
+
+def polygon_viz(cur,conn):
+    pass
+
+def eod_viz(cur,conn):
+    pass
+
+
+
+
+
+
 
 def insertData_news(cur, conn, data):
   count_id = cur.execute('SELECT COUNT(count_id) FROM stocks').fetchone()[0] + 1
