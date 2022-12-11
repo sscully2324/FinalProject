@@ -6,7 +6,6 @@ import requests
 import json
 import datetime
 
-
 def setUp (stocks, froms, to):
     url = "https://eodhistoricaldata.com/api/sentiments?s=" + stocks + "&order=a&from=" + froms + "&to=" + to + "&api_token=6396252345fe97.14332763"
     params = {
@@ -14,7 +13,6 @@ def setUp (stocks, froms, to):
         "from": froms,
         "to": to,
     }
-
     response = requests.get(url, params=params)
     data = response.json()
     return data
@@ -50,7 +48,13 @@ def analyze_sentiment(sentiment_scores, end_date):
   # Return the dictionary of daily average sentiment scores and the end_date
   return daily_scores, end_date
 
-
+def classify_score(score):
+    if score > 0.5:
+        return "Positive"
+    elif score < 0.5:
+        return "Negative"
+    else:
+        return "Neutral"
 
 def setUpDatabase(db_name):
   path = os.path.dirname(os.path.abspath(__file__))
@@ -61,16 +65,14 @@ def setUpDatabase(db_name):
   return cur, conn
 
 def insertData(cur, conn, data):
-
   count_id = cur.execute('SELECT COUNT(count_id) FROM stocks').fetchone()[0] + 1
   start = count_id - 1
   sean_end = start + 25
   data_list = list(data.items())
   for date, score in data_list[start:sean_end]:
-    cur.execute("INSERT OR IGNORE INTO stocks VALUES (?, ?, ?)", (count_id, date, score))
+    classification = classify_score(score)
+    cur.execute("INSERT OR IGNORE INTO stocks VALUES (?, ?, ?, ?)", (count_id, date, score, classification))
     conn.commit()
-
-
 
 def main():
     stocks = 'aapl'
@@ -82,7 +84,8 @@ def main():
         daily_scores, end_date  = analyze_sentiment(aapl_data, end_date)
         # Print the daily scores at index one where the date is the key and the score is the value
         for date, score in daily_scores.items():
-            print(date, score)
+            classification = classify_score(score)
+            print(date, score, classification)
         # If end_date is None, then all sentiment scores have been processed, so break out of the loop
         if end_date is None:
             break
@@ -90,7 +93,5 @@ def main():
     cur, conn = setUpDatabase('stocksss.db')
     insertData(cur, conn, daily_scores)
     
- 
-
 if __name__ == '__main__':
     main()
