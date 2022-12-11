@@ -92,6 +92,9 @@ def main():
 
     cur, conn = setUpDatabase('stocksss.db')
     insertData(cur, conn, daily_scores)
+
+
+    
     
 if __name__ == '__main__':
     main()
