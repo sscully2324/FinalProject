@@ -43,7 +43,7 @@ def get_current_stock_data(symbol,interval, outputsize, apikey):
 
 #EODHISTORICALDATA SETUP
 def setUp_news (stocks, froms, to):
-    url = "https://eodhistoricaldata.com/api/sentiments?s=" + stocks + "&order=a&from=" + froms + "&to=" + to + "&api_token=6396252345fe97.14332763"
+    url = "https://eodhistoricaldata.com/api/sentiments?s=" + stocks + "&order=a&from=" + froms + "&to=" + to + "&api_token=639665c54dbca0.55803170"
     params = {
         "s": stocks,
         "from": froms,
@@ -146,12 +146,6 @@ def polygon_viz(cur,conn):
 def eod_viz(cur,conn):
     pass
 
-
-
-
-
-
-
 def insertData_news(cur, conn, data):
   count_id = cur.execute('SELECT COUNT(count_id) FROM stocks').fetchone()[0] + 1
   start = count_id - 1
@@ -161,13 +155,6 @@ def insertData_news(cur, conn, data):
     classification = classify_score(score)
     cur.execute("INSERT OR IGNORE INTO stocks VALUES (?, ?, ?, ?)", (count_id, date, score, classification))
     conn.commit()
-
-def create_combined_table(cur, conn):
-    # Create a new table to store the combined data
-    cur.execute("CREATE TABLE combined_data (date TEXT PRIMARY KEY, polygon_close REAL, news_score REAL)")
-
-# Insert the combined data into the new table
-    cur.execute("INSERT INTO combined_data (date, polygon_close, news_score) SELECT polygon.date, polygon.close, news.sentiment_score FROM polygon INNER JOIN news ON polygon.date = news.date")
 
 '''--------------------------------------------------------------------------------------------------------------'''
 
@@ -184,7 +171,6 @@ def main():
         if end_date is None:
             break
     cur, conn = setUpDatabase('stocks.db')
-    create_news_table(cur, conn, daily_scores)
     data = get_stock_data_polygon(stocks, "1", "day", "2021-05-10", "2022-05-10", "asc", "25", "fw2THBM8iVqFAaKWfECR_H9peNm0Bp8Y")
     create_stock_table(cur, conn, data, stocks)
     data = get_current_stock_data(stocks, "1min", "25", "aa9952037501498aa349d042e328f8a7")
