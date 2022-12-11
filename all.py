@@ -11,6 +11,7 @@ import sys
 import os
 import json
 
+#POLYGON SETUP
 def get_stock_data_polygon(stocksTicker, multiplier, timespan, from_date, to_date, sort, limit, apikey):
     url = "https://api.polygon.io/v2/aggs/ticker/" + stocksTicker + "/range/" + multiplier + "/" + timespan + "/" + from_date + "/" + to_date + "?adjusted=true&sort=" + sort + "&limit=" + limit + "&apiKey=" + apikey
     params = {
@@ -42,7 +43,7 @@ def get_current_stock_data(symbol,interval, outputsize, apikey):
 
 #EODHISTORICALDATA SETUP
 def setUp_news (stocks, froms, to):
-    url = "https://eodhistoricaldata.com/api/sentiments?s=" + stocks + "&order=a&from=" + froms + "&to=" + to + "&api_token=6396252345fe97.14332763"
+    url = "https://eodhistoricaldata.com/api/sentiments?s=" + stocks + "&order=a&from=" + froms + "&to=" + to + "&api_token=639646d118b4a9.88239411"
     params = {
         "s": stocks,
         "from": froms,
@@ -105,6 +106,36 @@ def create_current_stock_table(cur, conn, data, stock):
     for i in range(len(data['values'])):
         cur.execute("INSERT INTO current_stock (stock, current, current_open, current_high, current_low, current_close, current_volume) VALUES (?, ?, ?, ?, ?, ?, ?)", (stock, data['values'][i]['datetime'], data['values'][i]['open'], data['values'][i]['high'], data['values'][i]['low'], data['values'][i]['close'], data['values'][i]['volume']))
         conn.commit()
+
+#average calculation for current stock table 
+def avg_current_stock(cur,conn):
+    averages=[]
+    cur.execute("SELECT current_high FROM current_stock")
+    high = cur.fetchall()
+    cur.execute("SELECT current_low FROM current_stock")
+    low = cur.fetchall()
+    for i in range(len(high)):
+        h= high[i][0]
+        l= low[i][0]
+        avg = h+l/2
+        averages.append(avg)
+    #returns list of averages 
+    return averages
+#average calculation for historical stock table 
+def avg_historical_stock(cur,conn):
+    averages=[]
+    cur.execute("SELECT high FROM stock")
+    high = cur.fetchall()
+    cur.execute("SELECT low FROM stock")
+    low = cur.fetchall()
+    for i in range(len(high)):
+        h= high[i][0]
+        l= low[i][0]
+        avg = h+l/2
+        averages.append(avg)
+    #returns list of averages 
+    return averages 
+
 def insertData_news(cur, conn, data):
   count_id = cur.execute('SELECT COUNT(count_id) FROM stocks').fetchone()[0] + 1
   start = count_id - 1
@@ -131,13 +162,13 @@ def main():
         daily_scores, end_date  = analyze_sentiment(aapl_data, end_date)
         for date, score in daily_scores.items():
             classification = classify_score(score)
-            print(date, score, classification)
+            #print(date, score, classification)
         if end_date is None:
             break
     cur, conn = setUpDatabase('stocks.db')
-    insertData_news(cur, conn, daily_scores)
-    data = get_stock_data_polygon(stocks, "1", "day", "2021-05-10", "2022-05-10", "asc", "25", "fw2THBM8iVqFAaKWfECR_H9peNm0Bp8Y")
-    create_stock_table(cur, conn, data, stocks)
+    # insertData_news(cur, conn, daily_scores)
+    # data = get_stock_data_polygon(stocks, "1", "day", "2021-05-10", "2022-05-10", "asc", "25", "fw2THBM8iVqFAaKWfECR_H9peNm0Bp8Y")
+    #create_stock_table(cur, conn, data, stocks)
     data = get_current_stock_data(stocks, "1min", "25", "aa9952037501498aa349d042e328f8a7")
     create_current_stock_table(cur, conn, data, stocks)
     
