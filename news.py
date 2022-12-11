@@ -8,7 +8,7 @@ import datetime
 
 
 def setUp (stocks, froms, to):
-    url = "https://eodhistoricaldata.com/api/sentiments?s=" + stocks + "&order=a&from=" + froms + "&to=" + to + "&api_token=63952c7fd06b43.00332954"
+    url = "https://eodhistoricaldata.com/api/sentiments?s=" + stocks + "&order=a&from=" + froms + "&to=" + to + "&api_token=639534ba337151.63055361"
     params = {
         "s": stocks,
         "from": froms,
@@ -57,6 +57,7 @@ def setUpDatabase(db_name):
   conn = sqlite3.connect(path + '/' + db_name)
   cur = conn.cursor()
   cur.execute("CREATE TABLE IF NOT EXISTS stocks (date TEXT, score REAL)")
+  cur.execute("CREATE TABLE IF NOT EXISTS stocks2 (date TEXT, score REAL)")
   conn.commit()
   return cur, conn
 
@@ -66,10 +67,10 @@ def insertData(cur, conn, data):
     conn.commit()
 
   # Set the starting row number
-  start_row = 25
+  start_row = 0
 
   # Select rows starting from the starting row number
-  cur.execute("CREATE TABLE IF NOT EXISTS stocks2 AS SELECT * FROM stocks LIMIT 25 OFFSET ?", (start_row,))
+  cur.execute("INSERT INTO stocks2 SELECT * FROM stocks LIMIT 25 OFFSET ?", (start_row,))
   conn.commit()
 
   # Increase the starting row number by 25 for the next iteration
