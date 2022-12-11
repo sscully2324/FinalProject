@@ -7,22 +7,8 @@ import matplotlib.pyplot as plt
 import sqlite3
 import os
 from datetime import datetime
+import plotly.express as px
 
-
-#GNEWS SETUP
-def get_news_data_gnews(stocksTicker, from_date, to_date, sort, limit, apikey):
-    url = "https://gnews.io/api/v4/search?q=" + stocksTicker + "&from=" + from_date + "&to=" + to_date + "&sortby=" + sort + "&max=" + limit + "&token=" + apikey + "&lang=en" 
-    params = {
-        "stocksTicker": stocksTicker,
-        "from": from_date,
-        "to": to_date,
-        "sort": sort,
-        "limit": limit,
-        "apikey": apikey
-    }
-    response = requests.get(url, params=params)
-    data = response.json()
-    return data
 #POLYGON SETUP
 def get_stock_data_polygon(stocksTicker, multiplier, timespan, from_date, to_date, sort, limit, apikey):
     url = "https://api.polygon.io/v2/aggs/ticker/" + stocksTicker + "/range/" + multiplier + "/" + timespan + "/" + from_date + "/" + to_date + "?adjusted=true&sort=" + sort + "&limit=" + limit + "&apiKey=" + apikey
@@ -100,18 +86,22 @@ def join_tables(cur, conn):
 
 '''--------------------------------------------------------------------------------------------------------------'''
 
-
 def main():
 
     stocks = "AAPL"
     curr, conn = setUpDatabase("stock.db")
-    data = get_news_data_gnews(stocks, "2021-05-10", "2022-05-10", "date", "25", "9f186c9b36777723249910217e13cb5d")
     create_news_table(curr, conn, data, stocks)
     data = get_stock_data_polygon(stocks, "1", "day", "2021-05-10", "2022-05-10", "asc", "25", "fw2THBM8iVqFAaKWfECR_H9peNm0Bp8Y")
     create_stock_table(curr, conn, data, stocks)
     data = get_current_stock_data(stocks, "1min", "25", "aa9952037501498aa349d042e328f8a7")
     create_current_stock_table(curr, conn, data, stocks)
     join_tables(curr, conn)
+
+
+    
+
+
+
 
 
 
