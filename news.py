@@ -77,6 +77,7 @@ def insertData(cur, conn, data):
   start_row += 25
 
 
+
 def main():
     stocks = 'aapl'
     data = setUp(stocks, '2021-12-09', '2022-12-09')
