@@ -43,7 +43,7 @@ def get_current_stock_data(symbol,interval, outputsize, apikey):
 
 #EODHISTORICALDATA SETUP
 def setUp_news (stocks, froms, to):
-    url = "https://eodhistoricaldata.com/api/sentiments?s=" + stocks + "&order=a&from=" + froms + "&to=" + to + "&api_token=639665c54dbca0.55803170"
+    url = "https://eodhistoricaldata.com/api/sentiments?s=" + stocks + "&order=a&from=" + froms + "&to=" + to + "&api_token=63966d0c94f400.49802964"
     params = {
         "s": stocks,
         "from": froms,
@@ -103,7 +103,7 @@ def create_current_stock_table(cur, conn, data, stock):
         cur.execute("INSERT INTO current_stock (stock, current, current_open, current_high, current_low, current_close, current_volume) VALUES (?, ?, ?, ?, ?, ?, ?)", (stock, data['values'][i]['datetime'], data['values'][i]['open'], data['values'][i]['high'], data['values'][i]['low'], data['values'][i]['close'], data['values'][i]['volume']))
         conn.commit()
 def insertData_news(cur, conn, data):
-    cur.execute("CREATE TABLE IF NOT EXISTS news_stock(count_id INTEGER, date TEXT, score REAL, classification TEXT, PRIMARY KEY (count_id))")
+    cur.execute("CREATE TABLE IF NOT EXISTS news_stock(count_id INTEGER, date TEXT, score REAL, classification TEXT)")
     conn.commit()
     count_id = cur.execute('SELECT COUNT(count_id) FROM news_stock').fetchone()[0] + 1
     start = count_id - 1
@@ -155,6 +155,7 @@ def eod_viz(cur,conn):
 '''--------------------------------------------------------------------------------------------------------------'''
 #MAIN
 def main():
+    cur, conn = setUpDatabase('stocks.db')
     stocks = "AAPL"
     data = setUp_news('aapl', '2021-12-09', '2022-12-09')
     aapl_data = data['AAPL.US']
@@ -166,7 +167,6 @@ def main():
             #print(date, score, classification)
         if end_date is None:
             break
-    cur, conn = setUpDatabase('stocks.db')
     insertData_news(cur, conn, daily_scores)
     data = get_stock_data_polygon(stocks, "1", "day", "2021-05-10", "2022-05-10", "asc", "25", "fw2THBM8iVqFAaKWfECR_H9peNm0Bp8Y")
     create_stock_table(cur, conn, data, stocks)
