@@ -52,9 +52,7 @@ def setUp_news (stocks, froms, to):
     response = requests.get(url, params=params)
     data = response.json()
     return data
-
     '''--------------------------------------------------------------------------------------------------------------'''
-
 #SENTIMENT ANALYSIS
 def analyze_sentiment(sentiment_scores, end_date):
   daily_scores = {}
@@ -84,9 +82,7 @@ def classify_score(score):
         return "Negative"
     else:
         return "Neutral"
-
 '''--------------------------------------------------------------------------------------------------------------'''
-
 #SQL SETUP
 def setUpDatabase(db_name):
     path = os.path.dirname(os.path.abspath(__file__))
@@ -106,6 +102,15 @@ def create_current_stock_table(cur, conn, data, stock):
     for i in range(len(data['values'])):
         cur.execute("INSERT INTO current_stock (stock, current, current_open, current_high, current_low, current_close, current_volume) VALUES (?, ?, ?, ?, ?, ?, ?)", (stock, data['values'][i]['datetime'], data['values'][i]['open'], data['values'][i]['high'], data['values'][i]['low'], data['values'][i]['close'], data['values'][i]['volume']))
         conn.commit()
+def insertData_news(cur, conn, data):
+  count_id = cur.execute('SELECT COUNT(count_id) FROM stocks').fetchone()[0] + 1
+  start = count_id - 1
+  sean_end = start + 25
+  data_list = list(data.items())
+  for date, score in data_list[start:sean_end]:
+    classification = classify_score(score)
+    cur.execute("INSERT OR IGNORE INTO stocks VALUES (?, ?, ?, ?)", (count_id, date, score, classification))
+    conn.commit()
 '''_____________________________________________________________________________________________________________________________________________________________________________________________________'''
 #average calculation for current stock table 
 def avg_current_stock(cur,conn):
@@ -145,19 +150,8 @@ def polygon_viz(cur,conn):
 
 def eod_viz(cur,conn):
     pass
-
-def insertData_news(cur, conn, data):
-  count_id = cur.execute('SELECT COUNT(count_id) FROM stocks').fetchone()[0] + 1
-  start = count_id - 1
-  sean_end = start + 25
-  data_list = list(data.items())
-  for date, score in data_list[start:sean_end]:
-    classification = classify_score(score)
-    cur.execute("INSERT OR IGNORE INTO stocks VALUES (?, ?, ?, ?)", (count_id, date, score, classification))
-    conn.commit()
-
 '''--------------------------------------------------------------------------------------------------------------'''
-
+#MAIN
 def main():
     stocks = "AAPL"
     data = setUp_news('aapl', '2021-12-09', '2022-12-09')
