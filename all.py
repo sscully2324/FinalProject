@@ -43,7 +43,7 @@ def get_current_stock_data(symbol,interval, outputsize, apikey):
 
 #EODHISTORICALDATA SETUP
 def setUp_news (stocks, froms, to):
-    url = "https://eodhistoricaldata.com/api/sentiments?s=" + stocks + "&order=a&from=" + froms + "&to=" + to + "&api_token=639646d118b4a9.88239411"
+    url = "https://eodhistoricaldata.com/api/sentiments?s=" + stocks + "&order=a&from=" + froms + "&to=" + to + "&api_token=6396252345fe97.14332763"
     params = {
         "s": stocks,
         "from": froms,
@@ -163,15 +163,17 @@ def insertData_news(cur, conn, data):
     conn.commit()
 
 def create_combined_table(cur, conn):
-    cur.execute("CREATE TABLE IF NOT EXISTS combined (id INTEGER PRIMARY KEY, stock TEXT, date TEXT, open REAL, high REAL, low REAL, close REAL, volume REAL, current TEXT, current_open REAL, current_high REAL, current_low REAL, current_close REAL, current_volume REAL, FOREIGN KEY (id) REFERENCES gnews (id))")
-    conn.commit()
-    cur.execute("INSERT INTO combined (stock, date, open, high, low, close, volume, current, current_open, current_high, current_low, current_close, current_volume) SELECT stock, date, open, high, low, close, volume, current, current_open, current_high, current_low, current_close, current_volume FROM stock INNER JOIN current_stock ON stock.stock = current_stock.stock")
-    conn.commit()
+    # Create a new table to store the combined data
+    cur.execute("CREATE TABLE combined_data (date TEXT PRIMARY KEY, polygon_close REAL, news_score REAL)")
+
+# Insert the combined data into the new table
+    cur.execute("INSERT INTO combined_data (date, polygon_close, news_score) SELECT polygon.date, polygon.close, news.sentiment_score FROM polygon INNER JOIN news ON polygon.date = news.date")
+
 '''--------------------------------------------------------------------------------------------------------------'''
 
 def main():
-    stocks = 'aapl'
-    data = setUp_news(stocks, '2021-12-09', '2022-12-09')
+    stocks = "AAPL"
+    data = setUp_news('aapl', '2021-12-09', '2022-12-09')
     aapl_data = data['AAPL.US']
     end_date = '2021-12-09'
     while True :
@@ -182,9 +184,9 @@ def main():
         if end_date is None:
             break
     cur, conn = setUpDatabase('stocks.db')
-    # insertData_news(cur, conn, daily_scores)
-    # data = get_stock_data_polygon(stocks, "1", "day", "2021-05-10", "2022-05-10", "asc", "25", "fw2THBM8iVqFAaKWfECR_H9peNm0Bp8Y")
-    #create_stock_table(cur, conn, data, stocks)
+    create_news_table(cur, conn, daily_scores)
+    data = get_stock_data_polygon(stocks, "1", "day", "2021-05-10", "2022-05-10", "asc", "25", "fw2THBM8iVqFAaKWfECR_H9peNm0Bp8Y")
+    create_stock_table(cur, conn, data, stocks)
     data = get_current_stock_data(stocks, "1min", "25", "aa9952037501498aa349d042e328f8a7")
     create_current_stock_table(cur, conn, data, stocks)
     
