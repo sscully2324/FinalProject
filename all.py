@@ -103,14 +103,16 @@ def create_current_stock_table(cur, conn, data, stock):
         cur.execute("INSERT INTO current_stock (stock, current, current_open, current_high, current_low, current_close, current_volume) VALUES (?, ?, ?, ?, ?, ?, ?)", (stock, data['values'][i]['datetime'], data['values'][i]['open'], data['values'][i]['high'], data['values'][i]['low'], data['values'][i]['close'], data['values'][i]['volume']))
         conn.commit()
 def insertData_news(cur, conn, data):
-  count_id = cur.execute('SELECT COUNT(count_id) FROM stocks').fetchone()[0] + 1
-  start = count_id - 1
-  sean_end = start + 25
-  data_list = list(data.items())
-  for date, score in data_list[start:sean_end]:
-    classification = classify_score(score)
-    cur.execute("INSERT OR IGNORE INTO stocks VALUES (?, ?, ?, ?)", (count_id, date, score, classification))
+    cur.execute("CREATE TABLE IF NOT EXISTS news_stock(count_id INTEGER, date TEXT, score REAL, classification TEXT, PRIMARY KEY (count_id))")
     conn.commit()
+    count_id = cur.execute('SELECT COUNT(count_id) FROM news_stock').fetchone()[0] + 1
+    start = count_id - 1
+    sean_end = start + 25
+    data_list = list(data.items())
+    for date, score in data_list[start:sean_end]:
+        classification = classify_score(score)
+        cur.execute("INSERT OR IGNORE INTO news_stock VALUES (?, ?, ?)", (date, score, classification))
+        conn.commit()
 '''_____________________________________________________________________________________________________________________________________________________________________________________________________'''
 #average calculation for current stock table 
 def avg_current_stock(cur,conn):
@@ -165,6 +167,7 @@ def main():
         if end_date is None:
             break
     cur, conn = setUpDatabase('stocks.db')
+    insertData_news(cur, conn, daily_scores)
     data = get_stock_data_polygon(stocks, "1", "day", "2021-05-10", "2022-05-10", "asc", "25", "fw2THBM8iVqFAaKWfECR_H9peNm0Bp8Y")
     create_stock_table(cur, conn, data, stocks)
     data = get_current_stock_data(stocks, "1min", "25", "aa9952037501498aa349d042e328f8a7")
