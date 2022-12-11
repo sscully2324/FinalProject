@@ -106,7 +106,7 @@ def create_current_stock_table(cur, conn, data, stock):
     for i in range(len(data['values'])):
         cur.execute("INSERT INTO current_stock (stock, current, current_open, current_high, current_low, current_close, current_volume) VALUES (?, ?, ?, ?, ?, ?, ?)", (stock, data['values'][i]['datetime'], data['values'][i]['open'], data['values'][i]['high'], data['values'][i]['low'], data['values'][i]['close'], data['values'][i]['volume']))
         conn.commit()
-
+'''_____________________________________________________________________________________________________________________________________________________________________________________________________'''
 #average calculation for current stock table 
 def avg_current_stock(cur,conn):
     averages=[]
@@ -134,7 +134,8 @@ def avg_historical_stock(cur,conn):
         avg = h+l/2
         averages.append(avg)
     #returns list of averages 
-    return averages 
+    return averages
+'''_____________________________________________________________________________________________________________________________________________________________________________________________________'''
 
 def insertData_news(cur, conn, data):
   count_id = cur.execute('SELECT COUNT(count_id) FROM stocks').fetchone()[0] + 1
