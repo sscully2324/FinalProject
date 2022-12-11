@@ -111,7 +111,7 @@ def insertData_news(cur, conn, data):
     data_list = list(data.items())
     for date, score in data_list[start:sean_end]:
         classification = classify_score(score)
-        cur.execute("INSERT OR IGNORE INTO news_stock VALUES (?, ?, ?)", (date, score, classification))
+        cur.execute("INSERT OR IGNORE INTO news_stock VALUES (?, ?, ?, ?)", (count_id, date, score, classification))
         conn.commit()
 '''_____________________________________________________________________________________________________________________________________________________________________________________________________'''
 #average calculation for current stock table 
