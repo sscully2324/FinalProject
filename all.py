@@ -9,6 +9,7 @@ from datetime import datetime
 import sys
 import os
 import json
+import csv
 
 #POLYGON SETUP
 def get_stock_data_polygon(stocksTicker, multiplier, timespan, from_date, to_date, sort, limit, apikey):
@@ -159,6 +160,14 @@ def eod_calculation(cur, conn):
             results[classifications[i][0]]=0
     return results
 
+#create csv file 
+def write_csv(filename, cur, conn):
+    with open(filename, 'w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(["Average Current AAPL Value", avg_current_stock(cur,conn)])
+        writer.writerow(["Average AAPL Value Last Month", avg_historical_stock(cur,conn)])
+        writer.writerow(["EOD Sentiment Calculations", eod_calculation(cur,conn) ])
+
 '''_____________________________________________________________________________________________________________________________________________________________________________________________________'''
 #Visualizations start 
 def twelvedata_viz(cur,conn):
@@ -251,7 +260,8 @@ def main():
     # twelvedata_viz(cur, conn)
     # polygon_viz(cur,conn)
     # eod_viz(cur,conn)
-    extra_viz(cur,conn)
+    # extra_viz(cur,conn)
+    write_csv('calculations.csv', cur, conn)
 
 if __name__ == '__main__':
     main()
