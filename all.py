@@ -229,13 +229,13 @@ def main():
         if end_date is None:
             break
     insertData_news(cur, conn, daily_scores)
-    data = get_stock_data_polygon(stocks, "1", "day", "2022-11-01", "2022-11-30", "asc", "25", "SdPhD9OzWCb83KCc6jLIvqDAAARb7Gpd")
+    data = get_stock_data_polygon(stocks, "1", "day", "2022-11-01", "2022-12-30", "asc", "25", "SdPhD9OzWCb83KCc6jLIvqDAAARb7Gpd")
     create_stock_table(cur, conn, data)
     data = get_current_stock_data(stocks, "1min", "25", "4823639c64944e2191f8ca72b37189c8")
     create_current_stock_table(cur, conn, data)
-    twelvedata_viz(cur, conn)
-    polygon_viz(cur,conn)
-    eod_viz(cur,conn)
+    # twelvedata_viz(cur, conn)
+    # polygon_viz(cur,conn)
+    # eod_viz(cur,conn)
 
 if __name__ == '__main__':
     main()
