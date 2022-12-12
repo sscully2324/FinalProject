@@ -42,7 +42,7 @@ def get_current_stock_data(symbol,interval, outputsize, apikey):
 
 #EODHISTORICALDATA SETUP
 def setUp_news (stocks, froms, to):
-    url = "https://eodhistoricaldata.com/api/sentiments?s=" + stocks + "&order=a&from=" + froms + "&to=" + to + "&api_token=6396bb5e522982.19882158"
+    url = "https://eodhistoricaldata.com/api/sentiments?s=" + stocks + "&order=a&from=" + froms + "&to=" + to + "&api_token=6397543a7cb6b4.94693764"
     params = {
         "s": stocks,
         "from": froms,
@@ -168,7 +168,7 @@ def twelvedata_viz(cur,conn):
     plt.scatter(x_axis, y_axis, color = "purple")
     plt.xlabel("Date")
     plt.ylabel("Average Apple Stock Value")
-    plt.title("Average Apple Stock Value over December 9th (Today)",**csfont)
+    plt.title("Average Apple Stock Value over December 12th (Today)",**csfont)
     plt.xticks(rotation = 45)
     plt.tight_layout()
     plt.show()
@@ -185,7 +185,7 @@ def polygon_viz(cur,conn):
     plt.scatter(x_axis, y_axis, color = "orange")
     plt.xlabel("Date")
     plt.ylabel("Average Apple Stock Value")
-    plt.title("Average Apple Stock Value over November 2022",**csfont)
+    plt.title("Average Apple Stock Value over the Past Month",**csfont)
     plt.xticks(rotation = 45)
     plt.tight_layout()
     plt.show()
@@ -201,10 +201,11 @@ def eod_viz(cur,conn):
     newsdates = cur.fetchall()
     for i in range(len(newsdates)):
         newsdates[i]= newsdates[i][0]
+    csfont = {'fontname':'Comic Sans MS'}
     plt.scatter(newsdates, scores, color = "green")
     plt.xlabel("Date")
     plt.ylabel("Sentiment Score")
-    plt.title("Sentiment Scores for Apple for November 2022")
+    plt.title("Sentiment Scores for Apple for the Past Month",**csfont)
     plt.xticks(rotation = 45)
     plt.tight_layout()
     plt.xlim(0, 30)
@@ -229,13 +230,13 @@ def main():
         if end_date is None:
             break
     insertData_news(cur, conn, daily_scores)
-    data = get_stock_data_polygon(stocks, "1", "day", "2022-11-01", "2022-12-30", "asc", "25", "SdPhD9OzWCb83KCc6jLIvqDAAARb7Gpd")
+    data = get_stock_data_polygon(stocks, "1", "day", "2021-12-09", "2022-12-09", "asc", "25", "RM7plKGZLe8ucYHUCek6krz5nKz28u8W")
     create_stock_table(cur, conn, data)
     data = get_current_stock_data(stocks, "1min", "25", "4823639c64944e2191f8ca72b37189c8")
     create_current_stock_table(cur, conn, data)
     # twelvedata_viz(cur, conn)
     # polygon_viz(cur,conn)
-    # eod_viz(cur,conn)
+    #eod_viz(cur,conn)
 
 if __name__ == '__main__':
     main()
