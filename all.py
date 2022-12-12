@@ -43,7 +43,7 @@ def get_current_stock_data(symbol,interval, outputsize, apikey):
 
 #EODHISTORICALDATA SETUP
 def setUp_news (stocks, froms, to):
-    url = "https://eodhistoricaldata.com/api/sentiments?s=" + stocks + "&order=a&from=" + froms + "&to=" + to + "&api_token=639769d9641b45.33949278"
+    url = "https://eodhistoricaldata.com/api/sentiments?s=" + stocks + "&order=a&from=" + froms + "&to=" + to + "&api_token=6397980522eee7.45703917"
     params = {
         "s": stocks,
         "from": froms,
@@ -240,27 +240,27 @@ def extra_viz(cur, conn):
 #MAIN
 def main():
     cur, conn = setUpDatabase('stocks_final.db')
-    # stocks = "AAPL"
-    # data = setUp_news('aapl', '2022-08-31', '2022-12-09')
-    # aapl_data = data['AAPL.US']
-    # end_date = '2021-12-09'
-    # while True :
-    #     daily_scores, end_date  = analyze_sentiment(aapl_data, end_date)
-    #     for date, score in daily_scores.items():
-    #         classification = classify_score(score)
-    #         #print(date, score, classification)
-    #     if end_date is None:
-    #         break
-    # insertData_news(cur, conn, daily_scores)
-    # data = get_stock_data_polygon(stocks, "1", "day", "2022-08-31", "2022-12-09", "desc", "25", "VwQcpLk2CC29SRIq8vuStvD6xOIKBDOh")
-    # create_stock_table(cur, conn, data)
-    # data = get_current_stock_data(stocks, "1min", "25", "4823639c64944e2191f8ca72b37189c8")
-    # create_current_stock_table(cur, conn, data)
-    # combine_tables(cur, conn)
-    # twelvedata_viz(cur, conn)
-    # polygon_viz(cur,conn)
-    # eod_viz(cur,conn)
-    # extra_viz(cur,conn)
+    stocks = "AAPL"
+    data = setUp_news('aapl', '2022-08-31', '2022-12-09')
+    aapl_data = data['AAPL.US']
+    end_date = '2021-12-09'
+    while True :
+        daily_scores, end_date  = analyze_sentiment(aapl_data, end_date)
+        for date, score in daily_scores.items():
+            classification = classify_score(score)
+            #print(date, score, classification)
+        if end_date is None:
+            break
+    insertData_news(cur, conn, daily_scores)
+    data = get_stock_data_polygon(stocks, "1", "day", "2022-08-31", "2022-12-09", "desc", "25", "VwQcpLk2CC29SRIq8vuStvD6xOIKBDOh")
+    create_stock_table(cur, conn, data)
+    data = get_current_stock_data(stocks, "1min", "25", "4823639c64944e2191f8ca72b37189c8")
+    create_current_stock_table(cur, conn, data)
+    combine_tables(cur, conn)
+    twelvedata_viz(cur, conn)
+    polygon_viz(cur,conn)
+    eod_viz(cur,conn)
+    extra_viz(cur,conn)
     write_csv('calculations.csv', cur, conn)
 
 if __name__ == '__main__':
