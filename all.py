@@ -112,6 +112,26 @@ def insertData_news(cur, conn, data):
         classification = classify_score(score)
         cur.execute("INSERT OR IGNORE INTO news_stock VALUES (?, ?, ?, ?)", (count_id, date, score, classification))
         conn.commit()
+def combine_tables(cur, conn):
+    #combine news and stock tables
+    cur.execute("CREATE TABLE IF NOT EXISTS combined (id INTEGER PRIMARY KEY, date TEXT, open REAL, high REAL, low REAL, close REAL, volume REAL, score REAL, classification INTEGER)")
+    conn.commit()
+    cur.execute("SELECT * FROM stock")
+    stock = cur.fetchall()
+    cur.execute("SELECT * FROM news_stock")
+    news = cur.fetchall()
+    for i in range(len(stock)):
+        date = stock[i][1]
+        open = stock[i][2]
+        high = stock[i][3]
+        low = stock[i][4]
+        close = stock[i][5]
+        volume = stock[i][6]
+        score = news[i][2]
+        classification = news[i][3]
+        cur.execute("INSERT INTO combined (date, open, high, low, close, volume, score, classification) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", (date, open, high, low, close, volume, score, classification))
+        conn.commit()
+
 '''_____________________________________________________________________________________________________________________________________________________________________________________________________'''
 #average calculation for current stock table 
 def avg_current_stock(cur,conn):
@@ -229,10 +249,11 @@ def main():
         if end_date is None:
             break
     insertData_news(cur, conn, daily_scores)
-    data = get_stock_data_polygon(stocks, "1", "day", "2022-11-01", "2022-12-30", "asc", "25", "SdPhD9OzWCb83KCc6jLIvqDAAARb7Gpd")
+    data = get_stock_data_polygon(stocks, "1", "day", "2021-12-09", "2022-12-09", "desc", "25", "SdPhD9OzWCb83KCc6jLIvqDAAARb7Gpd")
     create_stock_table(cur, conn, data)
     data = get_current_stock_data(stocks, "1min", "25", "4823639c64944e2191f8ca72b37189c8")
     create_current_stock_table(cur, conn, data)
+    combine_tables(cur, conn)
     # twelvedata_viz(cur, conn)
     # polygon_viz(cur,conn)
     # eod_viz(cur,conn)
