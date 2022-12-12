@@ -42,7 +42,7 @@ def get_current_stock_data(symbol,interval, outputsize, apikey):
 
 #EODHISTORICALDATA SETUP
 def setUp_news (stocks, froms, to):
-    url = "https://eodhistoricaldata.com/api/sentiments?s=" + stocks + "&order=a&from=" + froms + "&to=" + to + "&api_token=63966d0c94f400.49802964"
+    url = "https://eodhistoricaldata.com/api/sentiments?s=" + stocks + "&order=a&from=" + froms + "&to=" + to + "&api_token=6396922d3a1d66.87738348"
     params = {
         "s": stocks,
         "from": froms,
@@ -50,6 +50,7 @@ def setUp_news (stocks, froms, to):
     }
     response = requests.get(url, params=params)
     data = response.json()
+    print(data)
     return data
     '''--------------------------------------------------------------------------------------------------------------'''
 #SENTIMENT ANALYSIS
@@ -141,6 +142,21 @@ def avg_historical_stock(cur,conn):
         averages.append(avg)
     #returns list of averages 
     return averages
+
+#calculates how many negative/positive sentiments and returns them in a dictionary with their corresponding count
+def eod_calculation(cur, conn):
+    cur.execute("SELECT classification FROM news_stock")
+    classifications = cur.fetchall()
+    results= {}
+    for i in range(len(classifications)):
+        if classifications[i][0] in results:
+            results[classifications[i][0]]+=1
+        else:
+            results[classifications[i][0]]=0
+    print(results)
+
+
+
 '''_____________________________________________________________________________________________________________________________________________________________________________________________________'''
 #Visualizations start 
 def twelvedata_viz(cur,conn):
@@ -184,23 +200,24 @@ def eod_viz(cur,conn):
 def main():
     cur, conn = setUpDatabase('stocks.db')
     stocks = "AAPL"
-    data = setUp_news('aapl', '2021-12-09', '2022-12-09')
-    aapl_data = data['AAPL.US']
-    end_date = '2021-12-09'
-    while True :
-        daily_scores, end_date  = analyze_sentiment(aapl_data, end_date)
-        for date, score in daily_scores.items():
-            classification = classify_score(score)
-            #print(date, score, classification)
-        if end_date is None:
-            break
-    insertData_news(cur, conn, daily_scores)
-    data = get_stock_data_polygon(stocks, "1", "day", "2021-09-11", "2022-09-11", "asc", "25", "fw2THBM8iVqFAaKWfECR_H9peNm0Bp8Y")
-    create_stock_table(cur, conn, data, stocks)
-    data = get_current_stock_data(stocks, "1min", "25", "aa9952037501498aa349d042e328f8a7")
-    create_current_stock_table(cur, conn, data, stocks)
-    twelvedata_viz(cur, conn)
-    polygon_viz(cur,conn)
-    
+    # data = setUp_news('aapl', '2021-12-09', '2022-12-09')
+    # aapl_data = data['AAPL.US']
+    # end_date = '2021-12-09'
+    # while True :
+    #     daily_scores, end_date  = analyze_sentiment(aapl_data, end_date)
+    #     for date, score in daily_scores.items():
+    #         classification = classify_score(score)
+    #         #print(date, score, classification)
+    #     if end_date is None:
+    #         break
+    #insertData_news(cur, conn, daily_scores)
+    # data = get_stock_data_polygon(stocks, "1", "day", "2022-01-11", "2022-30-11", "asc", "25", "kQ7_G94gpM45HRLw4XrF9a_pW1sRLNqb")
+    # create_stock_table(cur, conn, data, stocks)
+    # data = get_current_stock_data(stocks, "1min", "25", "4823639c64944e2191f8ca72b37189c8")
+    # create_current_stock_table(cur, conn, data, stocks)
+    # twelvedata_viz(cur, conn)
+    # polygon_viz(cur,conn)
+    eod_calculation(cur,conn)
+
 if __name__ == '__main__':
     main()
