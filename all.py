@@ -217,6 +217,15 @@ def eod_viz(cur,conn):
     plt.show()
 
 #extra visualization bar graph of positive vs negative sentiments over the last month  ????
+def extra_viz(cur, conn):
+    plt.figure()
+    x_axis = eod_calculation(cur,conn).keys()
+    y_axis = eod_calculation(cur,conn).values()
+    plt.bar(x_axis, y_axis, color = "purple")
+    plt.xlabel("Classification")
+    plt.ylabel("Count")
+    plt.title("Bar Chart of Sentiment Classification Counts")
+    plt.show()
 
 '''--------------------------------------------------------------------------------------------------------------'''
 #MAIN
