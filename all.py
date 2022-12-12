@@ -22,7 +22,6 @@ def get_stock_data_polygon(stocksTicker, multiplier, timespan, from_date, to_dat
         "sort": sort,
         "limit": limit,
         "apikey": apikey
-        
     }
     response = requests.get(url, params=params)
     data = response.json()
@@ -43,7 +42,7 @@ def get_current_stock_data(symbol,interval, outputsize, apikey):
 
 #EODHISTORICALDATA SETUP
 def setUp_news (stocks, froms, to):
-    url = "https://eodhistoricaldata.com/api/sentiments?s=" + stocks + "&order=a&from=" + froms + "&to=" + to + "&api_token=639751476fca36.16266913"
+    url = "https://eodhistoricaldata.com/api/sentiments?s=" + stocks + "&order=a&from=" + froms + "&to=" + to + "&api_token=639769d9641b45.33949278"
     params = {
         "s": stocks,
         "from": froms,
@@ -115,25 +114,9 @@ def insertData_news(cur, conn, data):
         cur.execute("INSERT OR IGNORE INTO news_stock VALUES (?, ?, ?, ?)", (count_id, date, score, classification))
         conn.commit()
 def combine_tables(cur, conn):
-    #combine news and stock tables
-    cur.execute("CREATE TABLE IF NOT EXISTS combined (id INTEGER PRIMARY KEY, date TEXT, open REAL, high REAL, low REAL, close REAL, volume REAL, score REAL, classification INTEGER)")
+    cur.execute("CREATE TABLE IF NOT EXISTS combine(date TEXT, score REAL, classification INTEGER, open REAL, high REAL, low REAL, close REAL, volume REAL)") 
+    cur.execute("INSERT INTO combine SELECT n.date, n.score, n.classification, s.open, s.high, s.low, s.close, s.volume FROM news_stock AS n LEFT JOIN stock AS s ON n.date = s.date")
     conn.commit()
-    cur.execute("SELECT * FROM stock")
-    stock = cur.fetchall()
-    cur.execute("SELECT * FROM news_stock")
-    news = cur.fetchall()
-    for i in range(len(stock)):
-        date = stock[i][1]
-        open = stock[i][2]
-        high = stock[i][3]
-        low = stock[i][4]
-        close = stock[i][5]
-        volume = stock[i][6]
-        score = news[i][2]
-        classification = news[i][3]
-        cur.execute("INSERT INTO combined (date, open, high, low, close, volume, score, classification) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", (date, open, high, low, close, volume, score, classification))
-        conn.commit()
-
 '''_____________________________________________________________________________________________________________________________________________________________________________________________________'''
 #average calculation for current stock table 
 def avg_current_stock(cur,conn):
@@ -190,7 +173,7 @@ def twelvedata_viz(cur,conn):
     plt.scatter(x_axis, y_axis, color = "purple")
     plt.xlabel("Date")
     plt.ylabel("Average Apple Stock Value")
-    plt.title("Average Apple Stock Value over December 12th (Today)",**csfont)
+    plt.title("Average Apple Stock Value over December 9th (Today)",**csfont)
     plt.xticks(rotation = 45)
     plt.tight_layout()
     plt.show()
@@ -207,7 +190,7 @@ def polygon_viz(cur,conn):
     plt.scatter(x_axis, y_axis, color = "orange")
     plt.xlabel("Date")
     plt.ylabel("Average Apple Stock Value")
-    plt.title("Average Apple Stock Value over the Past Month",**csfont)
+    plt.title("Average Apple Stock Value over November 2022",**csfont)
     plt.xticks(rotation = 45)
     plt.tight_layout()
     plt.show()
@@ -223,11 +206,10 @@ def eod_viz(cur,conn):
     newsdates = cur.fetchall()
     for i in range(len(newsdates)):
         newsdates[i]= newsdates[i][0]
-    csfont = {'fontname':'Comic Sans MS'}
     plt.scatter(newsdates, scores, color = "green")
     plt.xlabel("Date")
     plt.ylabel("Sentiment Score")
-    plt.title("Sentiment Scores for Apple for the Past Month",**csfont)
+    plt.title("Sentiment Scores for Apple for November 2022")
     plt.xticks(rotation = 45)
     plt.tight_layout()
     plt.xlim(0, 30)
@@ -252,13 +234,14 @@ def main():
         if end_date is None:
             break
     insertData_news(cur, conn, daily_scores)
-    data = get_stock_data_polygon(stocks, "1", "day", "2021-12-09", "2022-12-09", "asc", "25", "RM7plKGZLe8ucYHUCek6krz5nKz28u8W")
+    data = get_stock_data_polygon(stocks, "1", "day", "2021-12-09", "2022-12-09", "desc", "25", "SdPhD9OzWCb83KCc6jLIvqDAAARb7Gpd")
     create_stock_table(cur, conn, data)
     data = get_current_stock_data(stocks, "1min", "25", "4823639c64944e2191f8ca72b37189c8")
     create_current_stock_table(cur, conn, data)
+    combine_tables(cur, conn)
     # twelvedata_viz(cur, conn)
     # polygon_viz(cur,conn)
-    #eod_viz(cur,conn)
+    # eod_viz(cur,conn)
 
 if __name__ == '__main__':
     main()
