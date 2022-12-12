@@ -42,7 +42,7 @@ def get_current_stock_data(symbol,interval, outputsize, apikey):
 
 #EODHISTORICALDATA SETUP
 def setUp_news (stocks, froms, to):
-    url = "https://eodhistoricaldata.com/api/sentiments?s=" + stocks + "&order=a&from=" + froms + "&to=" + to + "&api_token=6396bb5e522982.19882158"
+    url = "https://eodhistoricaldata.com/api/sentiments?s=" + stocks + "&order=a&from=" + froms + "&to=" + to + "&api_token=639751476fca36.16266913"
     params = {
         "s": stocks,
         "from": froms,
