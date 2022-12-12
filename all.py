@@ -42,7 +42,7 @@ def get_current_stock_data(symbol,interval, outputsize, apikey):
 
 #EODHISTORICALDATA SETUP
 def setUp_news (stocks, froms, to):
-    url = "https://eodhistoricaldata.com/api/sentiments?s=" + stocks + "&order=a&from=" + froms + "&to=" + to + "&api_token=63976f208894d6.80244953"
+    url = "https://eodhistoricaldata.com/api/sentiments?s=" + stocks + "&order=a&from=" + froms + "&to=" + to + "&api_token=639769d9641b45.33949278"
     params = {
         "s": stocks,
         "from": froms,
@@ -223,7 +223,7 @@ def eod_viz(cur,conn):
 def main():
     cur, conn = setUpDatabase('stocks_final.db')
     stocks = "AAPL"
-    data = setUp_news('aapl', '2021-12-09', '2022-12-09')
+    data = setUp_news('aapl', '2022-08-31', '2022-12-09')
     aapl_data = data['AAPL.US']
     end_date = '2021-12-09'
     while True :
@@ -234,7 +234,7 @@ def main():
         if end_date is None:
             break
     insertData_news(cur, conn, daily_scores)
-    data = get_stock_data_polygon(stocks, "1", "day", "2021-12-09", "2022-12-09", "desc", "25", "SdPhD9OzWCb83KCc6jLIvqDAAARb7Gpd")
+    data = get_stock_data_polygon(stocks, "1", "day", "2022-08-31", "2022-12-09", "desc", "25", "VwQcpLk2CC29SRIq8vuStvD6xOIKBDOh")
     create_stock_table(cur, conn, data)
     data = get_current_stock_data(stocks, "1min", "25", "4823639c64944e2191f8ca72b37189c8")
     create_current_stock_table(cur, conn, data)
