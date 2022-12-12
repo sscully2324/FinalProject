@@ -6,7 +6,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import sqlite3
 from datetime import datetime
-import plotly.express as px
 import sys
 import os
 import json
@@ -145,10 +144,37 @@ def avg_historical_stock(cur,conn):
 '''_____________________________________________________________________________________________________________________________________________________________________________________________________'''
 #Visualizations start 
 def twelvedata_viz(cur,conn):
-    pass
+    plt.figure()
+    y_axis = avg_current_stock(cur,conn)
+    cur.execute("SELECT date FROM stock")
+    x_axis = cur.fetchall()
+    
+    fig = plt.figure(figsize = (10,5))
+    plt.plot(x_axis, y_axis)
+    plt.xlabel("Date")
+    plt.ylabel("Average Apple Stock Value")
+    plt.title("Average Apple Stock Value over Current Time")
+    plt.show()
 
 def polygon_viz(cur,conn):
-    pass
+    plt.figure()
+    cur.execute(
+
+        """
+
+        SELECT date
+
+        FROM stock
+
+        """
+
+    )
+    res = cur.fetchall()
+    conn.commit()
+    x = zip(*res)
+    y = avg_historical_stock(cur,conn)
+    plt.plot(x,y)
+    plt.show()
 
 def eod_viz(cur,conn):
     pass
@@ -172,6 +198,8 @@ def main():
     create_stock_table(cur, conn, data, stocks)
     data = get_current_stock_data(stocks, "1min", "25", "aa9952037501498aa349d042e328f8a7")
     create_current_stock_table(cur, conn, data, stocks)
+    #twelvedata_viz(cur, conn)
+    polygon_viz(cur,conn)
     
 if __name__ == '__main__':
     main()
