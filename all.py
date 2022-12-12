@@ -77,7 +77,7 @@ def analyze_sentiment(sentiment_scores, end_date):
 def classify_score(score):
     if score > 0.5:
         return 1
-    elif score < 0.5:
+    elif score < 0:
         return -1
     else:
         return 0
