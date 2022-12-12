@@ -43,7 +43,7 @@ def get_current_stock_data(symbol,interval, outputsize, apikey):
 
 #EODHISTORICALDATA SETUP
 def setUp_news (stocks, froms, to):
-    url = "https://eodhistoricaldata.com/api/sentiments?s=" + stocks + "&order=a&from=" + froms + "&to=" + to + "&api_token=6397543a7cb6b4.94693764"
+    url = "https://eodhistoricaldata.com/api/sentiments?s=" + stocks + "&order=a&from=" + froms + "&to=" + to + "&api_token=639751476fca36.16266913"
     params = {
         "s": stocks,
         "from": froms,
@@ -94,6 +94,7 @@ def create_stock_table(cur, conn, data):
     conn.commit()
     for i in range(len(data['results'])):
         date = datetime.fromtimestamp(data['results'][i]['t']//1000)
+        date = date.strftime('%Y-%m-%d')
         cur.execute("INSERT INTO stock (date, open, high, low, close, volume) VALUES (?, ?, ?, ?, ?, ?)", (date, data['results'][i]['o'], data['results'][i]['h'], data['results'][i]['l'], data['results'][i]['c'], data['results'][i]['v']))
         conn.commit()
 def create_current_stock_table(cur, conn, data):
@@ -113,6 +114,26 @@ def insertData_news(cur, conn, data):
         classification = classify_score(score)
         cur.execute("INSERT OR IGNORE INTO news_stock VALUES (?, ?, ?, ?)", (count_id, date, score, classification))
         conn.commit()
+def combine_tables(cur, conn):
+    #combine news and stock tables
+    cur.execute("CREATE TABLE IF NOT EXISTS combined (id INTEGER PRIMARY KEY, date TEXT, open REAL, high REAL, low REAL, close REAL, volume REAL, score REAL, classification INTEGER)")
+    conn.commit()
+    cur.execute("SELECT * FROM stock")
+    stock = cur.fetchall()
+    cur.execute("SELECT * FROM news_stock")
+    news = cur.fetchall()
+    for i in range(len(stock)):
+        date = stock[i][1]
+        open = stock[i][2]
+        high = stock[i][3]
+        low = stock[i][4]
+        close = stock[i][5]
+        volume = stock[i][6]
+        score = news[i][2]
+        classification = news[i][3]
+        cur.execute("INSERT INTO combined (date, open, high, low, close, volume, score, classification) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", (date, open, high, low, close, volume, score, classification))
+        conn.commit()
+
 '''_____________________________________________________________________________________________________________________________________________________________________________________________________'''
 #average calculation for current stock table 
 def avg_current_stock(cur,conn):
@@ -218,7 +239,7 @@ def eod_viz(cur,conn):
 '''--------------------------------------------------------------------------------------------------------------'''
 #MAIN
 def main():
-    cur, conn = setUpDatabase('stocks.db')
+    cur, conn = setUpDatabase('stocks_final.db')
     stocks = "AAPL"
     data = setUp_news('aapl', '2021-12-09', '2022-12-09')
     aapl_data = data['AAPL.US']
