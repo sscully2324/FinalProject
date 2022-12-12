@@ -177,10 +177,6 @@ def polygon_viz(cur,conn):
     plt.tight_layout()
     plt.show()
 
-
-
-
-
 def eod_viz(cur,conn):
     pass
 '''--------------------------------------------------------------------------------------------------------------'''
@@ -199,7 +195,7 @@ def main():
         if end_date is None:
             break
     insertData_news(cur, conn, daily_scores)
-    data = get_stock_data_polygon(stocks, "1", "day", "2021-05-10", "2022-05-10", "asc", "25", "fw2THBM8iVqFAaKWfECR_H9peNm0Bp8Y")
+    data = get_stock_data_polygon(stocks, "1", "day", "2021-09-11", "2022-09-11", "asc", "25", "fw2THBM8iVqFAaKWfECR_H9peNm0Bp8Y")
     create_stock_table(cur, conn, data, stocks)
     data = get_current_stock_data(stocks, "1min", "25", "aa9952037501498aa349d042e328f8a7")
     create_current_stock_table(cur, conn, data, stocks)
