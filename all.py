@@ -22,6 +22,7 @@ def get_stock_data_polygon(stocksTicker, multiplier, timespan, from_date, to_dat
         "sort": sort,
         "limit": limit,
         "apikey": apikey
+        
     }
     response = requests.get(url, params=params)
     data = response.json()
