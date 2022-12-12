@@ -42,7 +42,7 @@ def get_current_stock_data(symbol,interval, outputsize, apikey):
 
 #EODHISTORICALDATA SETUP
 def setUp_news (stocks, froms, to):
-    url = "https://eodhistoricaldata.com/api/sentiments?s=" + stocks + "&order=a&from=" + froms + "&to=" + to + "&api_token=639769d9641b45.33949278"
+    url = "https://eodhistoricaldata.com/api/sentiments?s=" + stocks + "&order=a&from=" + froms + "&to=" + to + "&api_token=63976f208894d6.80244953"
     params = {
         "s": stocks,
         "from": froms,
@@ -173,7 +173,7 @@ def twelvedata_viz(cur,conn):
     plt.scatter(x_axis, y_axis, color = "purple")
     plt.xlabel("Date")
     plt.ylabel("Average Apple Stock Value")
-    plt.title("Average Apple Stock Value over December 9th (Today)",**csfont)
+    plt.title("Average Apple Stock Value over December 12th (Today)",**csfont)
     plt.xticks(rotation = 45)
     plt.tight_layout()
     plt.show()
@@ -190,7 +190,7 @@ def polygon_viz(cur,conn):
     plt.scatter(x_axis, y_axis, color = "orange")
     plt.xlabel("Date")
     plt.ylabel("Average Apple Stock Value")
-    plt.title("Average Apple Stock Value over November 2022",**csfont)
+    plt.title("Average Apple Stock Value over the Past Month",**csfont)
     plt.xticks(rotation = 45)
     plt.tight_layout()
     plt.show()
@@ -209,7 +209,7 @@ def eod_viz(cur,conn):
     plt.scatter(newsdates, scores, color = "green")
     plt.xlabel("Date")
     plt.ylabel("Sentiment Score")
-    plt.title("Sentiment Scores for Apple for November 2022")
+    plt.title("Sentiment Scores for Apple for the Past Month")
     plt.xticks(rotation = 45)
     plt.tight_layout()
     plt.xlim(0, 30)
@@ -239,9 +239,9 @@ def main():
     data = get_current_stock_data(stocks, "1min", "25", "4823639c64944e2191f8ca72b37189c8")
     create_current_stock_table(cur, conn, data)
     combine_tables(cur, conn)
-    # twelvedata_viz(cur, conn)
-    # polygon_viz(cur,conn)
-    # eod_viz(cur,conn)
+    twelvedata_viz(cur, conn)
+    polygon_viz(cur,conn)
+    eod_viz(cur,conn)
 
 if __name__ == '__main__':
     main()
