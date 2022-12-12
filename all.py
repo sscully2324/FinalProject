@@ -115,7 +115,7 @@ def insertData_news(cur, conn, data):
         conn.commit()
 def combine_tables(cur, conn):
     cur.execute("CREATE TABLE IF NOT EXISTS combine(date TEXT, score REAL, classification INTEGER, open REAL, high REAL, low REAL, close REAL, volume REAL)") 
-    cur.execute("INSERT INTO combine SELECT n.date, n.score, n.classification, s.open, s.high, s.low, s.close, s.volume FROM news_stock AS n LEFT JOIN stock AS s ON n.date = s.date")
+    cur.execute("INSERT INTO combine SELECT n.date, n.score, n.classification, s.open, s.high, s.low, s.close, s.volume FROM (SELECT date, score, classification FROM news_stock GROUP BY date) AS n LEFT JOIN stock AS s ON n.date = s.date")
     conn.commit()
 '''_____________________________________________________________________________________________________________________________________________________________________________________________________'''
 #average calculation for current stock table 
