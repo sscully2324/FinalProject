@@ -42,7 +42,7 @@ def get_current_stock_data(symbol,interval, outputsize, apikey):
 
 #EODHISTORICALDATA SETUP
 def setUp_news (stocks, froms, to):
-    url = "https://eodhistoricaldata.com/api/sentiments?s=" + stocks + "&order=a&from=" + froms + "&to=" + to + "&api_token=6396922d3a1d66.87738348"
+    url = "https://eodhistoricaldata.com/api/sentiments?s=" + stocks + "&order=a&from=" + froms + "&to=" + to + "&api_token=6396bb5e522982.19882158"
     params = {
         "s": stocks,
         "from": froms,
@@ -76,11 +76,11 @@ def analyze_sentiment(sentiment_scores, end_date):
 
 def classify_score(score):
     if score > 0.5:
-        return "Positive"
+        return 1
     elif score < 0.5:
-        return "Negative"
+        return -1
     else:
-        return "Neutral"
+        return 0
 '''--------------------------------------------------------------------------------------------------------------'''
 #SQL SETUP
 def setUpDatabase(db_name):
@@ -88,21 +88,21 @@ def setUpDatabase(db_name):
     conn = sqlite3.connect(path + '/' + db_name)
     cur = conn.cursor()
     return cur, conn
-def create_stock_table(cur, conn, data, stock):
-    cur.execute("CREATE TABLE IF NOT EXISTS stock (id INTEGER PRIMARY KEY, stock TEXT, date TEXT, open REAL, high REAL, low REAL, close REAL, volume REAL, FOREIGN KEY (id) REFERENCES gnews (id))")
+def create_stock_table(cur, conn, data):
+    cur.execute("CREATE TABLE IF NOT EXISTS stock (id INTEGER PRIMARY KEY, date TEXT, open REAL, high REAL, low REAL, close REAL, volume REAL)")
     conn.commit()
     for i in range(len(data['results'])):
         date = datetime.fromtimestamp(data['results'][i]['t']//1000)
-        cur.execute("INSERT INTO stock (stock, date, open, high, low, close, volume) VALUES (?, ?, ?, ?, ?, ?, ?)", (stock, date, data['results'][i]['o'], data['results'][i]['h'], data['results'][i]['l'], data['results'][i]['c'], data['results'][i]['v']))
+        cur.execute("INSERT INTO stock (date, open, high, low, close, volume) VALUES (?, ?, ?, ?, ?, ?)", (date, data['results'][i]['o'], data['results'][i]['h'], data['results'][i]['l'], data['results'][i]['c'], data['results'][i]['v']))
         conn.commit()
-def create_current_stock_table(cur, conn, data, stock):
-    cur.execute("CREATE TABLE IF NOT EXISTS current_stock (id INTEGER PRIMARY KEY, stock TEXT, current TEXT, current_open REAL, current_high REAL, current_low REAL, current_close REAL, current_volume REAL, FOREIGN KEY (id) REFERENCES gnews (id))")
+def create_current_stock_table(cur, conn, data):
+    cur.execute("CREATE TABLE IF NOT EXISTS current_stock (id INTEGER PRIMARY KEY, current TEXT, current_open REAL, current_high REAL, current_low REAL, current_close REAL, current_volume REAL)")
     conn.commit()
     for i in range(len(data['values'])):
-        cur.execute("INSERT INTO current_stock (stock, current, current_open, current_high, current_low, current_close, current_volume) VALUES (?, ?, ?, ?, ?, ?, ?)", (stock, data['values'][i]['datetime'], data['values'][i]['open'], data['values'][i]['high'], data['values'][i]['low'], data['values'][i]['close'], data['values'][i]['volume']))
+        cur.execute("INSERT INTO current_stock (current, current_open, current_high, current_low, current_close, current_volume) VALUES (?, ?, ?, ?, ?, ?)", (data['values'][i]['datetime'], data['values'][i]['open'], data['values'][i]['high'], data['values'][i]['low'], data['values'][i]['close'], data['values'][i]['volume']))
         conn.commit()
 def insertData_news(cur, conn, data):
-    cur.execute("CREATE TABLE IF NOT EXISTS news_stock(count_id INTEGER, date TEXT, score REAL, classification TEXT)")
+    cur.execute("CREATE TABLE IF NOT EXISTS news_stock(count_id INTEGER, date TEXT, score REAL, classification INTEGER)")
     conn.commit()
     count_id = cur.execute('SELECT COUNT(count_id) FROM news_stock').fetchone()[0] + 1
     start = count_id - 1
@@ -197,12 +197,10 @@ def eod_viz(cur,conn):
     scores = cur.fetchall()
     for i in range(len(scores)):
         scores[i]= scores[i][0]
-   
     cur.execute("SELECT date from news_stock")
     newsdates = cur.fetchall()
     for i in range(len(newsdates)):
         newsdates[i]= newsdates[i][0]
-
     plt.scatter(newsdates, scores, color = "green")
     plt.xlabel("Date")
     plt.ylabel("Sentiment Score")
@@ -213,9 +211,7 @@ def eod_viz(cur,conn):
     plt.locator_params(axis='x', nbins=30)
     plt.show()
 
-  
 #extra visualization bar graph of positive vs negative sentiments over the last month  ????
-
 
 '''--------------------------------------------------------------------------------------------------------------'''
 #MAIN
@@ -234,9 +230,9 @@ def main():
             break
     insertData_news(cur, conn, daily_scores)
     data = get_stock_data_polygon(stocks, "1", "day", "2022-11-01", "2022-11-30", "asc", "25", "SdPhD9OzWCb83KCc6jLIvqDAAARb7Gpd")
-    create_stock_table(cur, conn, data, stocks)
+    create_stock_table(cur, conn, data)
     data = get_current_stock_data(stocks, "1min", "25", "4823639c64944e2191f8ca72b37189c8")
-    create_current_stock_table(cur, conn, data, stocks)
+    create_current_stock_table(cur, conn, data)
     twelvedata_viz(cur, conn)
     polygon_viz(cur,conn)
     eod_viz(cur,conn)
